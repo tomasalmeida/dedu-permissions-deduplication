@@ -1,0 +1,179 @@
+---
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:${TAG}
+    hostname: zookeper
+    container_name: zookeeper
+    volumes:
+      - ${PWD}/jaas/zookeeper-jaas.config:/etc/zookeeper/secrets/zookeeper-server-jaas.config
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 10 # total init limit (INIT_LIMIT * TICK_TIME)
+      ZOOKEEPER_SYNC_LIMIT: 4 # total sync limit  (SYNC_LIMIT * TICK_TIME)
+      KAFKA_OPTS: -Dzookeeper.4lw.commands.whitelist=*
+        -Djava.security.auth.login.config=/etc/zookeeper/secrets/zookeeper-server-jaas.config
+        -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+        -Dzookeeper.allowSaslFailedClients=false
+        -Dzookeeper.requireClientAuthScheme=sasl
+
+  kafka1:
+    image: confluentinc/cp-enterprise-kafka:${TAG}
+    depends_on:
+      - zookeeper
+    container_name: kafka1
+    volumes:
+      - ${PWD}/jaas/kafka-jaas.config:/etc/kafka/secrets/kafka-server-jaas.config
+      - ${PWD}/clients:/etc/kafka/secrets/clients
+    ports:
+      - 9091:9091
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:SASL_PLAINTEXT,HOST:SASL_PLAINTEXT
+      KAFKA_SASL_ENABLED_MECHANISMS: 'PLAIN'
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka1:19091,HOST://localhost:9091
+      KAFKA_AUTHORIZER_CLASS_NAME: 'kafka.security.authorizer.AclAuthorizer'
+      KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: DOCKER
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'true'
+      KAFKA_SUPER_USERS: 'User:c3,User:kafka;User:ANONYMOUS'
+      # metrics
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_METRICS_ENABLE: 'true'
+      # metrics security
+      CONFLUENT_METRICS_REPORTER_SASL_MECHANISM: PLAIN
+      CONFLUENT_METRICS_REPORTER_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONFLUENT_METRICS_REPORTER_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="kafka" \
+        password="kafka-secret";
+      # interesting features
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/kafka-server-jaas.config
+
+  kafka2:
+    image: confluentinc/cp-enterprise-kafka:${TAG}
+    depends_on:
+      - zookeeper
+    container_name: kafka2
+    volumes:
+      - ${PWD}/jaas/kafka-jaas.config:/etc/kafka/secrets/kafka-server-jaas.config
+      - ${PWD}/clients:/etc/kafka/secrets/clients
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:SASL_PLAINTEXT,HOST:SASL_PLAINTEXT
+      KAFKA_SASL_ENABLED_MECHANISMS: 'PLAIN'
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka2:19092,HOST://localhost:9092
+      KAFKA_AUTHORIZER_CLASS_NAME: 'kafka.security.authorizer.AclAuthorizer'
+      KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: DOCKER
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'true'
+      KAFKA_SUPER_USERS: 'User:c3,User:kafka;User:ANONYMOUS'
+      # metrics
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_METRICS_ENABLE: 'true'
+      # metrics security
+      CONFLUENT_METRICS_REPORTER_SASL_MECHANISM: PLAIN
+      CONFLUENT_METRICS_REPORTER_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONFLUENT_METRICS_REPORTER_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="kafka" \
+        password="kafka-secret";
+      # interesting featuresz
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/kafka-server-jaas.config
+
+  kafka3:
+    image: confluentinc/cp-enterprise-kafka:${TAG}
+    depends_on:
+      - zookeeper
+    container_name: kafka3
+    volumes:
+      - ${PWD}/jaas/kafka-jaas.config:/etc/kafka/secrets/kafka-server-jaas.config
+      - ${PWD}/clients:/etc/kafka/secrets/clients
+    ports:
+      - 9093:9093
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:SASL_PLAINTEXT,HOST:SASL_PLAINTEXT
+      KAFKA_SASL_ENABLED_MECHANISMS: 'PLAIN'
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka3:19093,HOST://localhost:9093
+      KAFKA_AUTHORIZER_CLASS_NAME: 'kafka.security.authorizer.AclAuthorizer'
+      KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: DOCKER
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'true'
+      KAFKA_SUPER_USERS: 'User:c3,User:kafka;User:ANONYMOUS'
+      # metrics
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_METRICS_ENABLE: 'true'
+      # metrics security
+      CONFLUENT_METRICS_REPORTER_SASL_MECHANISM: PLAIN
+      CONFLUENT_METRICS_REPORTER_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONFLUENT_METRICS_REPORTER_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="kafka" \
+        password="kafka-secret";
+      # interesting features
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/kafka-server-jaas.config
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:${TAG}
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    ports:
+      - "8089:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_MECHANISM: PLAIN
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="sr" \
+        password="sr-secret";
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:${TAG}
+    container_name: control-center
+    depends_on:
+      - schema-registry
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: "kafka1:19091"
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+#      CONTROL_CENTER_CONNECT_CLUSTER: "https://connect:8083"
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONTROL_CENTER_STREAMS_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONTROL_CENTER_STREAMS_SASL_MECHANISM: PLAIN
+      CONTROL_CENTER_REST_LISTENERS: "http://0.0.0.0:9021"
+      CONTROL_CENTER_STREAMS_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="c3" \
+        password="c3-secret";
