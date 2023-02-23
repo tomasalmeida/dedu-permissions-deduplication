@@ -2,22 +2,21 @@ package com.tomasalmeida.dedu;
 
 import static com.tomasalmeida.dedu.CommandLineInterface.OPTION_CONFIG_FILE;
 import static com.tomasalmeida.dedu.CommandLineInterface.OPTION_HELP;
+import static com.tomasalmeida.dedu.CommandLineInterface.OPTION_PRINCIPAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 
 import java.io.PrintStream;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mock;
-import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -28,13 +27,20 @@ import com.tomasalmeida.dedu.com.tomasalmeida.tests.system.SystemExitPreventedEx
 @ExtendWith(MockitoExtension.class)
 class CommandLineInterfaceTest {
 
+    private static final String FILE_CONFIG_PATH = "src/test/resources/config.properties";
+    private static final String PRINCIPAL_NAME = "User:alice";
+
     @Mock
     private PrintStream output;
 
+    @Mock
+    private Deduplicator deduplicator;
 
     private String[] args;
-    private DisabledExitSecurityManager securityManager;
-    private Optional<Deduplicator> deduplicator;
+    private MockedStatic<Deduplicator> deduplicatorMockedStatic;
+
+    private DisabledExitSecurityManager disabledExitSecurityManager;
+    private SecurityManager originalSecurityManager;
 
     @Test
     void shouldShowHelpIfRequested() {
@@ -65,17 +71,19 @@ class CommandLineInterfaceTest {
         givenSystemExitIsDisabled();
         givenOutputIsSet();
         givenArgIsPassed();
+        givenDeduplicatorBuilderReturnsInstance();
 
         whenCliIsCalledWithArgs();
 
         thenDeduplicatorIsCalled();
         thenFinishedWithExit(0);
+        thenDeduplicatorBuilderIsFinished();
     }
 
     private void givenSystemExitIsDisabled() {
-        final SecurityManager originalSecurityManager = System.getSecurityManager();
-        securityManager = new DisabledExitSecurityManager(originalSecurityManager);
-        System.setSecurityManager(securityManager);
+        originalSecurityManager = System.getSecurityManager();
+        disabledExitSecurityManager = new DisabledExitSecurityManager(originalSecurityManager);
+        System.setSecurityManager(disabledExitSecurityManager);
     }
 
     private void givenOutputIsSet() {
@@ -91,19 +99,25 @@ class CommandLineInterfaceTest {
     }
 
     private void givenArgIsPassed() {
-        args = new String[]{"--" + OPTION_CONFIG_FILE, "file"};
+        args = new String[]{"--" + OPTION_CONFIG_FILE, FILE_CONFIG_PATH, "--" + OPTION_PRINCIPAL, PRINCIPAL_NAME};
+    }
+
+    private void givenDeduplicatorBuilderReturnsInstance() {
+        deduplicatorMockedStatic = Mockito.mockStatic(Deduplicator.class);
+        deduplicatorMockedStatic.when(() -> Deduplicator.build(FILE_CONFIG_PATH, PRINCIPAL_NAME))
+                .thenReturn(deduplicator);
     }
 
     private void whenCliIsCalledWithArgs() {
-        try (final MockedConstruction<Deduplicator> mocked = Mockito.mockConstruction(Deduplicator.class)) {
+        try {
             assertThrows(SystemExitPreventedException.class, () -> CommandLineInterface.main(args));
-            deduplicator = mocked.constructed().stream().findAny();
+        } finally {
+            System.setSecurityManager(originalSecurityManager);
         }
     }
 
     private void thenDeduplicatorIsCalled() {
-        assertTrue(deduplicator.isPresent());
-        verify(deduplicator.get()).run();
+        verify(deduplicator).run();
     }
 
     private void thenHelpIsShown() {
@@ -111,6 +125,10 @@ class CommandLineInterfaceTest {
     }
 
     private void thenFinishedWithExit(final int exitStatus) {
-        assertEquals(exitStatus, securityManager.getFirstExitStatusCode());
+        assertEquals(exitStatus, disabledExitSecurityManager.getFirstExitStatusCode());
+    }
+
+    private void thenDeduplicatorBuilderIsFinished() {
+        deduplicatorMockedStatic.close();
     }
 }

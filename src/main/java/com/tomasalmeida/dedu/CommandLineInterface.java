@@ -2,6 +2,7 @@ package com.tomasalmeida.dedu;
 
 import static java.lang.System.exit;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
@@ -13,27 +14,28 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 
+/**
+ * Main CLI class to read args from command line and call deduplicator with right parameters
+ */
 public class CommandLineInterface {
 
-    @VisibleForTesting
-    static final String OPTION_CONFIG_FILE = "config-file";
-    private static final String OPTION_CONFIG_FILE_DESC = "Config file path";
-    @VisibleForTesting
-    static final String OPTION_HELP = "help";
+    public static final String OPTION_CONFIG_FILE = "config-file";
+    private static final String OPTION_CONFIG_FILE_DESC = "Kafka Config file path";
+    public static final String OPTION_HELP = "help";
     private static final String OPTION_HELP_DESC = "Show usage options";
+    public static final String OPTION_PRINCIPAL = "principal";
+    private static final String OPTION_PRINCIPAL_DESC = "Optimize permissions for a given principal";
 
     private final Options optionsList;
     private final DefaultParser optionsParser;
-    private final Deduplicator deduplicator;
 
-    public CommandLineInterface(final Deduplicator deduplicator) {
+    public CommandLineInterface() {
         this.optionsList = buildOptionsList();
         this.optionsParser = new DefaultParser();
-        this.deduplicator = deduplicator;
     }
 
     public static void main(final String[] args) {
-        final CommandLineInterface cli = new CommandLineInterface(new Deduplicator());
+        final CommandLineInterface cli = new CommandLineInterface();
         try {
             cli.run(args);
         } catch (final ParseException e) {
@@ -46,8 +48,20 @@ public class CommandLineInterface {
     @VisibleForTesting
     void run(final String[] args) throws ParseException {
         printUsageIfRequested(args);
-        parseArgs(args);
-        deduplicator.run();
+        final CommandLine commandLine = parseArgs(args);
+        runDeduplicator(commandLine);
+    }
+
+    private void runDeduplicator(final CommandLine commandLine) {
+        final String configFile = commandLine.getOptionValue(OPTION_CONFIG_FILE);
+        final String principal = commandLine.getOptionValue(OPTION_PRINCIPAL);
+
+        try (final Deduplicator deduplicator = Deduplicator.build(configFile, principal)) {
+            deduplicator.run();
+        } catch (final IOException e) {
+            System.err.println("Error: " + e.getMessage());
+            printUsage(1);
+        }
     }
 
     private void printUsageIfRequested(final String[] args) {
@@ -80,11 +94,16 @@ public class CommandLineInterface {
         final Option helpOption = Option.builder()
                 .longOpt(OPTION_HELP)
                 .desc(OPTION_HELP_DESC)
-                .required(false)
+                .build();
+        final Option userOption = Option.builder()
+                .longOpt(OPTION_PRINCIPAL)
+                .desc(OPTION_PRINCIPAL_DESC)
+                .numberOfArgs(1)
                 .build();
         final Options options = new Options();
         options.addOption(configFileOption);
         options.addOption(helpOption);
+        options.addOption(userOption);
         return options;
     }
 }
