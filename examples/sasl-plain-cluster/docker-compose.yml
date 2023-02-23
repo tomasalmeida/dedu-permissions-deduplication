@@ -41,7 +41,7 @@ services:
       KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: DOCKER
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'true'
-      KAFKA_SUPER_USERS: 'User:c3,User:kafka;User:ANONYMOUS'
+      KAFKA_SUPER_USERS: 'User:c3;User:kafka'
       # metrics
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
@@ -80,7 +80,7 @@ services:
       KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: DOCKER
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'true'
-      KAFKA_SUPER_USERS: 'User:c3,User:kafka;User:ANONYMOUS'
+      KAFKA_SUPER_USERS: 'User:c3;User:kafka'
       # metrics
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
@@ -119,7 +119,7 @@ services:
       KAFKA_MECHANISMS_INTER_BROKER_PROTOCOL: DOCKER
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'true'
-      KAFKA_SUPER_USERS: 'User:c3,User:kafka;User:ANONYMOUS'
+      KAFKA_SUPER_USERS: 'User:c3;User:kafka'
       # metrics
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka1:19091,kafka2:19092,kafka3:19093"
@@ -163,6 +163,8 @@ services:
     container_name: control-center
     depends_on:
       - schema-registry
+    volumes:
+      - ${PWD}/clients:/etc/kafka/secrets/clients
     ports:
       - "9021:9021"
     environment:
