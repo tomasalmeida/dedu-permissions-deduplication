@@ -1,4 +1,4 @@
-package com.tomasalmeida.dedu.common;
+package com.tomasalmeida.dedu.api.system;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class PropertiesLoader {
     /**
      * Load properties from a given file
      */
-    public static Properties load(final String configFile) throws IOException {
+    public static Properties loadFromFile(final String configFile) throws IOException {
         if (!Files.exists(Paths.get(configFile))) {
             throw new IOException(configFile + " not found.");
         }

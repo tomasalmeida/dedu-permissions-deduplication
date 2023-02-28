@@ -4,6 +4,7 @@ import static java.lang.System.exit;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -58,7 +59,7 @@ public class CommandLineInterface {
 
         try (final Deduplicator deduplicator = Deduplicator.build(configFile, principal)) {
             deduplicator.run();
-        } catch (final IOException e) {
+        } catch (final IOException | ExecutionException | InterruptedException e) {
             System.err.println("Error: " + e.getMessage());
             printUsage(1);
         }

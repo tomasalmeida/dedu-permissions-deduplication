@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 
 import java.io.PrintStream;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,7 +68,7 @@ class CommandLineInterfaceTest {
     }
 
     @Test
-    void shouldCallDeduplicatorIfArgsAreCorrect() {
+    void shouldCallDeduplicatorIfArgsAreCorrect() throws ExecutionException, InterruptedException {
         givenSystemExitIsDisabled();
         givenOutputIsSet();
         givenArgIsPassed();
@@ -116,7 +117,7 @@ class CommandLineInterfaceTest {
         }
     }
 
-    private void thenDeduplicatorIsCalled() {
+    private void thenDeduplicatorIsCalled() throws ExecutionException, InterruptedException {
         verify(deduplicator).run();
     }
 
