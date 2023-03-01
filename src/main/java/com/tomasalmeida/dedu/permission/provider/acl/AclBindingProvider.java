@@ -12,6 +12,7 @@ import org.apache.kafka.common.acl.AclBindingFilter;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
+import org.jetbrains.annotations.NotNull;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.permission.models.PermissionBinding;
@@ -27,14 +28,19 @@ public class AclBindingProvider implements BindingProvider {
 
     @Override
     public List<PermissionBinding> retrievePermissionsForPrincipal(final String principal) throws ExecutionException, InterruptedException {
-        final AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(principal, null, AclOperation.ANY, AclPermissionType.ANY);
-        final AclBindingFilter filter = new AclBindingFilter(ResourcePatternFilter.ANY, entryFilter);
+        final AclBindingFilter filter = buildAclFilter(principal);
         final DescribeAclsResult results = adminClient.describeAcls(filter);
-        return results.values()
-                .thenApply(this::buildPermissionBindingList)
-                .get();
+        final Collection<AclBinding> aclBindings = results.values().get();
+        return buildPermissionBindingList(aclBindings);
     }
 
+    @NotNull
+    private AclBindingFilter buildAclFilter(final String principal) {
+        final AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(principal, null, AclOperation.ANY, AclPermissionType.ANY);
+        return new AclBindingFilter(ResourcePatternFilter.ANY, entryFilter);
+    }
+
+    @NotNull
     private List<PermissionBinding> buildPermissionBindingList(final Collection<AclBinding> aclBindings) {
         return aclBindings.stream()
                 .map(PermissionBinding::new)

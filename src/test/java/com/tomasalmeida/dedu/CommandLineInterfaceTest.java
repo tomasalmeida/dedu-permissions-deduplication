@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.tomasalmeida.dedu.com.tomasalmeida.tests.system.DisabledExitSecurityManager;
 import com.tomasalmeida.dedu.com.tomasalmeida.tests.system.SystemExitPreventedException;
 
-@Execution(ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(MockitoExtension.class)
 class CommandLineInterfaceTest {
 
