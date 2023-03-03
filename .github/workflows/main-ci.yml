@@ -19,3 +19,12 @@ jobs:
           distribution: 'temurin'
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots package
+      - name: Publish test coverage results
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: 'target/site/jacoco/jacoco.xml'
+          coverage_report_title: 'Test coverage results'
+          coverage_report_name: 'Test coverage results'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Report code coverage to codecov
+        uses: codecov/codecov-action@v3
