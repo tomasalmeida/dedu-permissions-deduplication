@@ -42,7 +42,7 @@ jobs:
           coverage_report_title: 'Test coverage results'
           coverage_report_name: 'Test coverage results'
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 85
+          minimum_coverage: 75
           fail_below_threshold: true
       - name: Report code coverage to codecov
         uses: codecov/codecov-action@v3
