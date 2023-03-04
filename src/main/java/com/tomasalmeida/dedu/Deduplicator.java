@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
-import com.tomasalmeida.dedu.permission.provider.BindingProvider;
-import com.tomasalmeida.dedu.permission.provider.acl.AclBindingProvider;
+import com.tomasalmeida.dedu.permission.BindingProvider;
+import com.tomasalmeida.dedu.permission.acls.AclBindingProvider;
 
 /**
  * Deduplicator coordinator
