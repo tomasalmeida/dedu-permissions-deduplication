@@ -12,6 +12,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+      deployments: read
+      issues: read
+      discussions: read
+      packages: read
+      pages: read
+      pull-requests: read
+      repository-projects: read
+      security-events: read
+      statuses: read
+
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 11
@@ -28,5 +42,7 @@ jobs:
           coverage_report_title: 'Test coverage results'
           coverage_report_name: 'Test coverage results'
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 75
+          fail_below_threshold: true
       - name: Report code coverage to codecov
         uses: codecov/codecov-action@v3
