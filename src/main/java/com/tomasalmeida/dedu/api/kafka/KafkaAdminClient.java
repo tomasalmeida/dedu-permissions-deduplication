@@ -2,11 +2,15 @@ package com.tomasalmeida.dedu.api.kafka;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeAclsResult;
 import org.apache.kafka.common.acl.AclBindingFilter;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
+import org.jetbrains.annotations.NotNull;
 
 import com.tomasalmeida.dedu.Configuration;
 import com.tomasalmeida.dedu.api.system.PropertiesLoader;
@@ -23,14 +27,11 @@ public class KafkaAdminClient implements Closeable {
         this.adminClient = adminClient;
     }
 
-    public static KafkaAdminClient build(final Configuration configuration) throws IOException {
-        final AdminClient adminClient = buildAdminFile(configuration);
-        return new KafkaAdminClient(adminClient);
-    }
-
-    private static AdminClient buildAdminFile(final Configuration configuration) throws IOException {
+    @NotNull
+    public static KafkaAdminClient build(@NotNull final Configuration configuration) throws IOException {
         final Properties kafkaProperties = PropertiesLoader.loadFromFile(configuration.getKafkaConfig());
-        return AdminClient.create(kafkaProperties);
+        final AdminClient adminClient = AdminClient.create(kafkaProperties);
+        return new KafkaAdminClient(adminClient);
     }
 
     /**
@@ -38,7 +39,7 @@ public class KafkaAdminClient implements Closeable {
      */
     @Override
     public void close() {
-        synchronized (closed) {
+        synchronized (adminClient) {
             if (!closed) {
                 adminClient.close();
                 closed = true;
@@ -48,5 +49,20 @@ public class KafkaAdminClient implements Closeable {
 
     public DescribeAclsResult describeAcls(final AclBindingFilter filter) {
         return adminClient.describeAcls(filter);
+    }
+
+    public boolean topicExists(final String topicName) {
+        try {
+            return adminClient
+                    .describeTopics(List.of(topicName))
+                    .allTopicNames()
+                    .thenApply(map -> map.size() > 0)
+                    .get();
+        } catch (final ExecutionException | InterruptedException e) {
+            if (e.getCause() instanceof UnknownTopicOrPartitionException) {
+                return false;
+            }
+            throw new KafkaAdminException(e);
+        }
     }
 }

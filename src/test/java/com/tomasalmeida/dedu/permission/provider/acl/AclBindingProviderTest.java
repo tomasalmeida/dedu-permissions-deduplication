@@ -29,9 +29,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
-import com.tomasalmeida.dedu.permission.PermissionBinding;
 import com.tomasalmeida.dedu.permission.acls.AclBindingProvider;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
+import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)

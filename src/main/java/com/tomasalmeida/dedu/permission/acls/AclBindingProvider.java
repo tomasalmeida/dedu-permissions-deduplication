@@ -15,8 +15,8 @@ import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.jetbrains.annotations.NotNull;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
-import com.tomasalmeida.dedu.permission.PermissionBinding;
 import com.tomasalmeida.dedu.permission.BindingProvider;
+import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 public class AclBindingProvider implements BindingProvider {
 
@@ -46,6 +46,4 @@ public class AclBindingProvider implements BindingProvider {
                 .map(AclPermissionBinding::new)
                 .collect(Collectors.toList());
     }
-
-
 }
