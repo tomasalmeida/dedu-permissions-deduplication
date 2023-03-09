@@ -1,9 +1,9 @@
-package com.tomasalmeida.dedu.permission.provider;
+package com.tomasalmeida.dedu.permission;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tomasalmeida.dedu.permission.models.PermissionBinding;
+import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 public interface BindingProvider {
 

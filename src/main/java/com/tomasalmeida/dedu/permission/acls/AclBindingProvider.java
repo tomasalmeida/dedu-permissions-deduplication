@@ -1,4 +1,4 @@
-package com.tomasalmeida.dedu.permission.provider.acl;
+package com.tomasalmeida.dedu.permission.acls;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,8 +15,8 @@ import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.jetbrains.annotations.NotNull;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
-import com.tomasalmeida.dedu.permission.models.PermissionBinding;
-import com.tomasalmeida.dedu.permission.provider.BindingProvider;
+import com.tomasalmeida.dedu.permission.BindingProvider;
+import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 public class AclBindingProvider implements BindingProvider {
 
@@ -43,9 +43,7 @@ public class AclBindingProvider implements BindingProvider {
     @NotNull
     private List<PermissionBinding> buildPermissionBindingList(final Collection<AclBinding> aclBindings) {
         return aclBindings.stream()
-                .map(PermissionBinding::new)
+                .map(AclPermissionBinding::new)
                 .collect(Collectors.toList());
     }
-
-
 }

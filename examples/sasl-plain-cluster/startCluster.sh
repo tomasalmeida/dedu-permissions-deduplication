@@ -19,3 +19,5 @@ while [[ $FOUND != "yes" ]]; do
   FOUND=$(docker-compose exec zookeeper zookeeper-shell zookeeper get /brokers/ids/1 &>/dev/null && echo 'yes')
 done
 echo "Kafka ready!!"
+
+bash setACLs.sh
