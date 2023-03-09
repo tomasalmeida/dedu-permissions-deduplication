@@ -3,6 +3,9 @@ package com.tomasalmeida.dedu.permission.bindings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import lombok.Getter;
+
+@Getter
 public class ActionablePermissionBinding extends PermissionBinding {
 
     public enum Action {DELETE, NONE}

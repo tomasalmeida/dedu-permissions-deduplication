@@ -5,6 +5,7 @@ import java.util.List;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
-public interface BindingDeletionModifier extends Modifier {
-     void run(List<PermissionBinding> originalPermissions, List<ActionablePermissionBinding> deletedPermissions);
+public interface BindingDeletionRule extends Rule {
+
+     void run(List<PermissionBinding> originalPermissions, List<ActionablePermissionBinding> actionablePermissions);
 }

@@ -7,36 +7,31 @@ import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.tomasalmeida.dedu.Configuration;
-import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
-import com.tomasalmeida.dedu.permission.acls.AclBindingProvider;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
-import com.tomasalmeida.dedu.permission.modifier.BindingDeletionModifier;
-import com.tomasalmeida.dedu.permission.modifier.BindingTransformationModifier;
-import com.tomasalmeida.dedu.permission.modifier.Modifier;
+import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
+import com.tomasalmeida.dedu.permission.modifier.BindingTransformationRule;
+import com.tomasalmeida.dedu.permission.modifier.Rule;
 
 public abstract class BindingDeduplicator {
 
-    private final List<BindingDeletionModifier> deletionModifiers;
-    private final List<BindingTransformationModifier> transformationModifiers;
-    private final KafkaAdminClient adminClient;
-    private final Configuration configuration;
+    private final List<BindingDeletionRule> deletionModifiers;
+    private final List<BindingTransformationRule> transformationModifiers;
 
-    public BindingDeduplicator(final KafkaAdminClient adminClient, final Configuration configuration) {
+    public BindingDeduplicator() {
         this.deletionModifiers = new ArrayList<>();
         this.transformationModifiers = new ArrayList<>();
-        this.adminClient = adminClient;
-        this.configuration = configuration;
     }
 
-    public void addRule(final Modifier modifier) {
-        if (modifier instanceof BindingDeletionModifier) {
-            deletionModifiers.add((BindingDeletionModifier) modifier);
-        } else if (modifier instanceof BindingTransformationModifier) {
-            transformationModifiers.add((BindingTransformationModifier) modifier);
+    protected void addRule(final Rule rule) {
+        if (rule instanceof BindingDeletionRule) {
+            deletionModifiers.add((BindingDeletionRule) rule);
+        } else if (rule instanceof BindingTransformationRule) {
+            transformationModifiers.add((BindingTransformationRule) rule);
         }
     }
+
+    protected abstract List<PermissionBinding> getPermissionBindingsForUsers() throws ExecutionException, InterruptedException;
 
     @NotNull
     public List<ActionablePermissionBinding> run() throws ExecutionException, InterruptedException {
@@ -49,15 +44,9 @@ public abstract class BindingDeduplicator {
     }
 
     @NotNull
-    private List<PermissionBinding> getPermissionBindingsForUsers() throws ExecutionException, InterruptedException {
-        final BindingProvider bindingProvider = new AclBindingProvider(adminClient);
-        return bindingProvider.retrievePermissionsForPrincipal(configuration.getPrincipal());
-    }
-
-    @NotNull
     private List<PermissionBinding> cleanObsoletePermissions(@NotNull final List<PermissionBinding> originalPermissions,
                                                              @NotNull final List<ActionablePermissionBinding> actionablePermissions) {
-        for (final BindingDeletionModifier modifier : deletionModifiers) {
+        for (final BindingDeletionRule modifier : deletionModifiers) {
             modifier.run(originalPermissions, actionablePermissions);
         }
 
@@ -73,7 +62,7 @@ public abstract class BindingDeduplicator {
         final List<ActionablePermissionBinding> deletedPermissions = new ArrayList<>();
         final List<ActionablePermissionBinding> addedPermissions = new ArrayList<>();
 
-        for (final BindingTransformationModifier modifier : transformationModifiers) {
+        for (final BindingTransformationRule modifier : transformationModifiers) {
             modifier.run(permissions, addedPermissions, deletedPermissions);
         }
 

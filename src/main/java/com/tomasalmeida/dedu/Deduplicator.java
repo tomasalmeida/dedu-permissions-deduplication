@@ -41,7 +41,9 @@ public class Deduplicator implements AutoCloseable {
 
     private void modifyAclsBindings() throws ExecutionException, InterruptedException {
         final AclBindingDeduplicator aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, configuration);
+
         final List<ActionablePermissionBinding> newPermissions = aclBindingDeduplicator.run();
+
         newPermissions
                 .forEach(System.out::println);
     }
