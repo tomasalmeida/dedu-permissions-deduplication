@@ -13,12 +13,16 @@ import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.permission.BindingProvider;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 public class AclBindingProvider implements BindingProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AclBindingProvider.class);
 
     private final KafkaAdminClient adminClient;
 
@@ -27,17 +31,22 @@ public class AclBindingProvider implements BindingProvider {
     }
 
     @Override
-    public List<PermissionBinding> retrievePermissionsForPrincipal(final String principal) throws ExecutionException, InterruptedException {
+    @NotNull
+    public List<PermissionBinding> retrievePermissionsForPrincipal(@NotNull final String principal) throws ExecutionException, InterruptedException {
         final AclBindingFilter filter = buildAclFilter(principal);
         final DescribeAclsResult results = adminClient.describeAcls(filter);
-        final Collection<AclBinding> aclBindings = results.values().get();
+        final Collection<AclBinding> aclBindings = results
+                .values()
+                .get();
         return buildPermissionBindingList(aclBindings);
     }
 
     @NotNull
     private AclBindingFilter buildAclFilter(final String principal) {
         final AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(principal, null, AclOperation.ANY, AclPermissionType.ANY);
-        return new AclBindingFilter(ResourcePatternFilter.ANY, entryFilter);
+        final AclBindingFilter aclBindingFilter = new AclBindingFilter(ResourcePatternFilter.ANY, entryFilter);
+        LOGGER.debug("Filter for ACL for one principal is [{}]", aclBindingFilter);
+        return aclBindingFilter;
     }
 
     @NotNull

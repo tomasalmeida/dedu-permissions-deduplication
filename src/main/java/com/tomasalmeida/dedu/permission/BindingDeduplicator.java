@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
@@ -15,10 +17,14 @@ import com.tomasalmeida.dedu.permission.modifier.Rule;
 
 public abstract class BindingDeduplicator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BindingDeduplicator.class);
+
     private final List<BindingDeletionRule> deletionModifiers;
     private final List<BindingTransformationRule> transformationModifiers;
+    private final String name;
 
-    public BindingDeduplicator() {
+    public BindingDeduplicator(@NotNull final String name) {
+        this.name = name;
         this.deletionModifiers = new ArrayList<>();
         this.transformationModifiers = new ArrayList<>();
     }
@@ -29,6 +35,7 @@ public abstract class BindingDeduplicator {
         } else if (rule instanceof BindingTransformationRule) {
             transformationModifiers.add((BindingTransformationRule) rule);
         }
+        LOGGER.debug("Rule [{}] added to Binding deduplicator [{}]", rule, name);
     }
 
     protected abstract List<PermissionBinding> getPermissionBindingsForUsers() throws ExecutionException, InterruptedException;

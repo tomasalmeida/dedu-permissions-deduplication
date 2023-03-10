@@ -7,22 +7,29 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Auxiliar class to read properties files
  */
 public class PropertiesLoader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesLoader.class);
+
     /**
      * Load properties from a given file
      */
-    public static Properties loadFromFile(final String configFile) throws IOException {
-        if (!Files.exists(Paths.get(configFile))) {
-            throw new IOException(configFile + " not found.");
+    public static Properties loadFromFile(final String filePath) throws IOException {
+        if (!Files.exists(Paths.get(filePath))) {
+            LOGGER.error("File [{}] was not found. Stopping...", filePath);
+            throw new IOException(filePath + " not found.");
         }
-        final Properties cfg = new Properties();
-        try (final InputStream inputStream = new FileInputStream(configFile)) {
-            cfg.load(inputStream);
+        final Properties properties = new Properties();
+        try (final InputStream inputStream = new FileInputStream(filePath)) {
+            properties.load(inputStream);
         }
-        return cfg;
+        LOGGER.debug("Loaded properties {}", properties);
+        return properties;
     }
 }

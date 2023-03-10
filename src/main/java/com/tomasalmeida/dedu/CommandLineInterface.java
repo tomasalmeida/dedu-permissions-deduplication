@@ -14,11 +14,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main CLI class to read args from command line and call deduplicator with right parameters
  */
 public class CommandLineInterface {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineInterface.class);
 
     public static final String OPTION_CONFIG_FILE = "config-file";
     private static final String OPTION_CONFIG_FILE_DESC = "Kafka Config file path";
@@ -39,29 +43,26 @@ public class CommandLineInterface {
         final CommandLineInterface cli = new CommandLineInterface();
         try {
             cli.run(args);
-        } catch (final ParseException e) {
-            System.err.println("Error: " + e.getMessage());
+        } catch (final Exception e) {
+            LOGGER.error("Unable to run CLI: [{}]", e.getMessage());
             cli.printUsage(1);
         }
         exit(0);
     }
 
     @VisibleForTesting
-    void run(final String[] args) throws ParseException {
+    void run(final String[] args) throws ParseException, IOException, ExecutionException, InterruptedException {
         printUsageIfRequested(args);
         final CommandLine commandLine = parseArgs(args);
         runDeduplicator(commandLine);
     }
 
-    private void runDeduplicator(final CommandLine commandLine) {
+    private void runDeduplicator(final CommandLine commandLine) throws ExecutionException, InterruptedException, IOException {
         final String configFile = commandLine.getOptionValue(OPTION_CONFIG_FILE);
         final String principal = commandLine.getOptionValue(OPTION_PRINCIPAL);
 
         try (final Deduplicator deduplicator = Deduplicator.build(configFile, principal)) {
             deduplicator.run();
-        } catch (final IOException | ExecutionException | InterruptedException e) {
-            System.err.println("Error: " + e.getMessage());
-            printUsage(1);
         }
     }
 

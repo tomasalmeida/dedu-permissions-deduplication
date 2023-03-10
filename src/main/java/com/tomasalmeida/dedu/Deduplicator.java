@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.permission.acls.AclBindingDeduplicator;
@@ -14,6 +16,8 @@ import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
  * Deduplicator coordinator
  */
 public class Deduplicator implements AutoCloseable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Deduplicator.class);
 
     private final Configuration configuration;
     private final KafkaAdminClient adminClient;
@@ -45,6 +49,6 @@ public class Deduplicator implements AutoCloseable {
         final List<ActionablePermissionBinding> newPermissions = aclBindingDeduplicator.run();
 
         newPermissions
-                .forEach(System.out::println);
+                .forEach(newPermission -> LOGGER.info("Actionable permission is [{}]", newPermission));
     }
 }

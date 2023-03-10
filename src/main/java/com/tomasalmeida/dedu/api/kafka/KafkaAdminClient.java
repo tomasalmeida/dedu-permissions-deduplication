@@ -11,6 +11,8 @@ import org.apache.kafka.clients.admin.DescribeAclsResult;
 import org.apache.kafka.common.acl.AclBindingFilter;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.Configuration;
 import com.tomasalmeida.dedu.api.system.PropertiesLoader;
@@ -19,6 +21,8 @@ import com.tomasalmeida.dedu.api.system.PropertiesLoader;
  * Kafka Admin Client Wrapper
  */
 public class KafkaAdminClient implements Closeable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaAdminClient.class);
 
     private final AdminClient adminClient;
     private Boolean closed = false;
@@ -53,16 +57,19 @@ public class KafkaAdminClient implements Closeable {
 
     public boolean topicExists(final String topicName) {
         try {
+            LOGGER.debug("Searching if topic [{}] exists.", topicName);
+
             return adminClient
                     .describeTopics(List.of(topicName))
                     .allTopicNames()
                     .thenApply(map -> map.size() > 0)
                     .get();
-        } catch (final ExecutionException | InterruptedException e) {
-            if (e.getCause() instanceof UnknownTopicOrPartitionException) {
+        } catch (final ExecutionException | InterruptedException exception) {
+            if (exception.getCause() instanceof UnknownTopicOrPartitionException) {
+                LOGGER.debug("Topic [{}] was not found.", topicName, exception);
                 return false;
             }
-            throw new KafkaAdminException(e);
+            throw new KafkaAdminException(exception);
         }
     }
 }
