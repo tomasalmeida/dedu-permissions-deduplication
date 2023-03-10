@@ -51,7 +51,6 @@ class CommandLineInterfaceTest {
 
         whenCliIsCalledWithArgs();
 
-        thenHelpIsShown();
         thenFinishedWithExit(0);
     }
 

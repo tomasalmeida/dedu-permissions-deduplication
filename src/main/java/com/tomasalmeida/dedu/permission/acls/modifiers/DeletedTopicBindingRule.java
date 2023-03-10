@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.kafka.common.resource.ResourceType;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
@@ -11,6 +13,8 @@ import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 
 public class DeletedTopicBindingRule implements BindingDeletionRule {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeletedTopicBindingRule.class);
 
     private final KafkaAdminClient adminClient;
 
@@ -35,7 +39,9 @@ public class DeletedTopicBindingRule implements BindingDeletionRule {
 
     private boolean isPermissionObsolete(@NotNull final PermissionBinding permission) {
         if (ResourceType.TOPIC.equals(permission.getResourceType())) {
-            return isTopicPermissionObsolete(permission);
+            final boolean isPermissionObsolete = isTopicPermissionObsolete(permission);
+            LOGGER.debug("Permission for topic [{}] is obsolete [{}]", permission.getResourceName(), isPermissionObsolete);
+            return isPermissionObsolete;
         }
         return false;
     }
@@ -57,7 +63,9 @@ public class DeletedTopicBindingRule implements BindingDeletionRule {
     }
 
     private boolean isTopicRemoved(@NotNull final String topicName) {
-        return !adminClient.topicExists(topicName);
+        final boolean topicExists = adminClient.topicExists(topicName);
+        LOGGER.debug("Topic [{}] exists [{}]", topicName, topicExists);
+        return !topicExists;
     }
 
     private boolean isSpecificResource(@NotNull final String resourceName) {

@@ -14,7 +14,7 @@ public class ActionablePermissionBinding extends PermissionBinding {
     private final String note;
 
     public ActionablePermissionBinding(@NotNull final PermissionBinding permission,
-                                       final Action action,
+                                       @NotNull final Action action,
                                        @Nullable final String note) {
         super(permission);
         this.action = action;
