@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
+import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.acls.AclBindingDeduplicator;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 
@@ -19,19 +20,21 @@ public class Deduplicator implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Deduplicator.class);
 
-    private final Configuration configuration;
+    private final MainConfiguration mainConfiguration;
     private final KafkaAdminClient adminClient;
 
-    private Deduplicator(final KafkaAdminClient adminClient, final Configuration configuration) {
+    private Deduplicator(final KafkaAdminClient adminClient, final MainConfiguration mainConfiguration) {
         this.adminClient = adminClient;
-        this.configuration = configuration;
+        this.mainConfiguration = mainConfiguration;
     }
 
     @NotNull
-    public static Deduplicator build(final String configFile, final String principal) throws IOException {
-        final Configuration configuration = new Configuration(configFile, principal);
-        final KafkaAdminClient kafkaAdminClient = KafkaAdminClient.build(configuration);
-        return new Deduplicator(kafkaAdminClient, configuration);
+    public static Deduplicator build(@NotNull final String kafkaConfigPath,
+                                     @NotNull final String deduConfigPath,
+                                     @NotNull final String principal) throws IOException {
+        final MainConfiguration mainConfiguration = new MainConfiguration(kafkaConfigPath, deduConfigPath, principal);
+        final KafkaAdminClient kafkaAdminClient = KafkaAdminClient.build(mainConfiguration);
+        return new Deduplicator(kafkaAdminClient, mainConfiguration);
     }
 
     @Override
@@ -44,7 +47,7 @@ public class Deduplicator implements AutoCloseable {
     }
 
     private void modifyAclsBindings() throws ExecutionException, InterruptedException {
-        final AclBindingDeduplicator aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, configuration);
+        final AclBindingDeduplicator aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration);
 
         final List<ActionablePermissionBinding> newPermissions = aclBindingDeduplicator.run();
 

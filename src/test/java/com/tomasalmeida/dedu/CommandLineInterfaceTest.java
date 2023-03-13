@@ -1,6 +1,7 @@
 package com.tomasalmeida.dedu;
 
 import static com.tomasalmeida.dedu.CommandLineInterface.OPTION_CONFIG_FILE;
+import static com.tomasalmeida.dedu.CommandLineInterface.OPTION_DEDU_CONFIG_FILE;
 import static com.tomasalmeida.dedu.CommandLineInterface.OPTION_HELP;
 import static com.tomasalmeida.dedu.CommandLineInterface.OPTION_PRINCIPAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +29,8 @@ import com.tomasalmeida.dedu.com.tomasalmeida.tests.system.SystemExitPreventedEx
 @ExtendWith(MockitoExtension.class)
 class CommandLineInterfaceTest {
 
-    private static final String FILE_CONFIG_PATH = "src/test/resources/config.properties";
+    private static final String KAFKA_CONFIG_PATH = "src/test/resources/config.properties";
+    private static final String DEDU_CONFIG_PATH = "src/test/resources/config.properties";
     private static final String PRINCIPAL_NAME = "User:alice";
 
     @Mock
@@ -99,12 +101,14 @@ class CommandLineInterfaceTest {
     }
 
     private void givenArgIsPassed() {
-        args = new String[]{"--" + OPTION_CONFIG_FILE, FILE_CONFIG_PATH, "--" + OPTION_PRINCIPAL, PRINCIPAL_NAME};
+        args = new String[]{"--" + OPTION_CONFIG_FILE, KAFKA_CONFIG_PATH,
+                "--" + OPTION_DEDU_CONFIG_FILE, DEDU_CONFIG_PATH,
+                "--" + OPTION_PRINCIPAL, PRINCIPAL_NAME};
     }
 
     private void givenDeduplicatorBuilderReturnsInstance() {
         deduplicatorMockedStatic = Mockito.mockStatic(Deduplicator.class);
-        deduplicatorMockedStatic.when(() -> Deduplicator.build(FILE_CONFIG_PATH, PRINCIPAL_NAME))
+        deduplicatorMockedStatic.when(() -> Deduplicator.build(KAFKA_CONFIG_PATH, DEDU_CONFIG_PATH, PRINCIPAL_NAME))
                 .thenReturn(deduplicator);
     }
 
