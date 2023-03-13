@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import com.tomasalmeida.dedu.api.system.PropertiesLoader;
 
@@ -21,8 +20,8 @@ class DeduConfiguration {
         return new DeduConfiguration(configFile);
     }
 
-    @Nullable
-    public String getProperty(@NotNull final String key) {
-        return properties.getProperty(key, null);
+    @NotNull
+    public String getPropertyOrDefault(@NotNull final String key, @NotNull final String defaultValue) {
+        return properties.getProperty(key, defaultValue);
     }
 }
