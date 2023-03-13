@@ -10,6 +10,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -32,14 +33,15 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.tomasalmeida.dedu.Configuration;
 import com.tomasalmeida.dedu.api.system.PropertiesLoader;
+import com.tomasalmeida.dedu.configuration.MainConfiguration;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
 class KafkaAdminClientTest {
 
     private static final String KAFKA_CONFIG_PATH = "/etc/path/to/file";
+    private static final String DEDU_CONFIG_PATH = "/etc/path/to/another/file";
     private static final String PRINCIPAL = "principal";
     private static final String TOPIC = "topic-name";
 
@@ -58,7 +60,7 @@ class KafkaAdminClientTest {
 
     private MockedStatic<AdminClient> adminClientMocked;
     private MockedStatic<PropertiesLoader> propertiesLoaderMocked;
-    private Configuration configuration;
+    private MainConfiguration mainConfiguration;
     private KafkaAdminClient kafkaAdminClient;
     private DescribeAclsResult describeAclsResult;
 
@@ -159,12 +161,12 @@ class KafkaAdminClientTest {
         when(adminClient.describeAcls(filter)).thenReturn(mockedDescribeAcls);
     }
 
-    private void givenConfigurationIsCreated() {
-        configuration = new Configuration(KAFKA_CONFIG_PATH, PRINCIPAL);
+    private void givenConfigurationIsCreated() throws IOException {
+        mainConfiguration = new MainConfiguration(KAFKA_CONFIG_PATH, DEDU_CONFIG_PATH, PRINCIPAL);
     }
 
     private void givenAdminclientIsCreated() throws Exception {
-        kafkaAdminClient = KafkaAdminClient.build(configuration);
+        kafkaAdminClient = KafkaAdminClient.build(mainConfiguration);
     }
 
     private void whenDescribeAclsIsCalled() {

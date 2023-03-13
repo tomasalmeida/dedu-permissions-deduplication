@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tomasalmeida.dedu.Configuration;
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
+import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.BindingDeduplicator;
 import com.tomasalmeida.dedu.permission.BindingProvider;
 import com.tomasalmeida.dedu.permission.acls.modifiers.DeletedTopicBindingRule;
@@ -18,12 +18,12 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AclBindingDeduplicator.class);
 
     private final KafkaAdminClient adminClient;
-    private final Configuration configuration;
+    private final MainConfiguration mainConfiguration;
 
-    public AclBindingDeduplicator(final KafkaAdminClient adminClient, final Configuration configuration) {
+    public AclBindingDeduplicator(final KafkaAdminClient adminClient, final MainConfiguration mainConfiguration) {
         super("aclBindingDeduplicator");
         this.adminClient = adminClient;
-        this.configuration = configuration;
+        this.mainConfiguration = mainConfiguration;
         addRules(adminClient);
     }
 
@@ -33,7 +33,7 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
 
     @Override
     protected List<PermissionBinding> getPermissionBindingsForUsers() throws ExecutionException, InterruptedException {
-        final String principal = configuration.getPrincipal();
+        final String principal = mainConfiguration.getPrincipal();
 
         final BindingProvider bindingProvider = new AclBindingProvider(adminClient);
         final List<PermissionBinding> permissionBindings = bindingProvider.retrievePermissionsForPrincipal(principal);

@@ -19,8 +19,8 @@ import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.tomasalmeida.dedu.Configuration;
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
+import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
@@ -34,7 +34,7 @@ class AclBindingDeduplicatorTest {
     @Mock
     private KafkaAdminClient adminClient;
     @Mock
-    private Configuration configuration;
+    private MainConfiguration mainConfiguration;
     @Mock
     private BindingDeletionRule deletionRule;
     @Mock
@@ -62,14 +62,14 @@ class AclBindingDeduplicatorTest {
 
     @Test
     void shouldGetPermissions() throws Exception {
-        when(configuration.getPrincipal()).thenReturn(PRINCIPAL);
+        when(mainConfiguration.getPrincipal()).thenReturn(PRINCIPAL);
         try (final MockedConstruction<AclBindingProvider> mockConstruction = mockConstruction(AclBindingProvider.class)) {
-            aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, configuration);
+            aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration);
 
             aclBindingDeduplicator.getPermissionBindingsForUsers();
 
             final List<AclBindingProvider> construced = mockConstruction.constructed();
-            verify(configuration).getPrincipal();
+            verify(mainConfiguration).getPrincipal();
             verify(construced.get(0)).retrievePermissionsForPrincipal(PRINCIPAL);
         }
     }
@@ -93,7 +93,7 @@ class AclBindingDeduplicatorTest {
     }
 
     private void givenAclBindingDeduplicatorIsCreated() {
-        aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, configuration) {
+        aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration) {
 
             @Override
             void addRules(final KafkaAdminClient adminClient) {

@@ -14,8 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tomasalmeida.dedu.Configuration;
-import com.tomasalmeida.dedu.api.system.PropertiesLoader;
+import com.tomasalmeida.dedu.configuration.MainConfiguration;
 
 /**
  * Kafka Admin Client Wrapper
@@ -32,8 +31,8 @@ public class KafkaAdminClient implements Closeable {
     }
 
     @NotNull
-    public static KafkaAdminClient build(@NotNull final Configuration configuration) throws IOException {
-        final Properties kafkaProperties = PropertiesLoader.loadFromFile(configuration.getKafkaConfig());
+    public static KafkaAdminClient build(@NotNull final MainConfiguration mainConfiguration) throws IOException {
+        final Properties kafkaProperties = mainConfiguration.getKafkaConfigProperties();
         final AdminClient adminClient = AdminClient.create(kafkaProperties);
         return new KafkaAdminClient(adminClient);
     }

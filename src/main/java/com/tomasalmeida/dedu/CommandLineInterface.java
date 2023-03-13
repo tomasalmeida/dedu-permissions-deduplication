@@ -26,6 +26,8 @@ public class CommandLineInterface {
 
     public static final String OPTION_CONFIG_FILE = "config-file";
     private static final String OPTION_CONFIG_FILE_DESC = "Kafka Config file path";
+    public static final String OPTION_DEDU_CONFIG_FILE = "dedu-config-file";
+    private static final String OPTION_DEDU_CONFIG_FILE_DESC = "Dedu Config file path";
     public static final String OPTION_HELP = "help";
     private static final String OPTION_HELP_DESC = "Show usage options";
     public static final String OPTION_PRINCIPAL = "principal";
@@ -59,9 +61,10 @@ public class CommandLineInterface {
 
     private void runDeduplicator(final CommandLine commandLine) throws ExecutionException, InterruptedException, IOException {
         final String configFile = commandLine.getOptionValue(OPTION_CONFIG_FILE);
+        final String deduConfigFile = commandLine.getOptionValue(OPTION_DEDU_CONFIG_FILE);
         final String principal = commandLine.getOptionValue(OPTION_PRINCIPAL);
 
-        try (final Deduplicator deduplicator = Deduplicator.build(configFile, principal)) {
+        try (final Deduplicator deduplicator = Deduplicator.build(configFile, deduConfigFile, principal)) {
             deduplicator.run();
         }
     }
@@ -93,6 +96,13 @@ public class CommandLineInterface {
                 .numberOfArgs(1)
                 .type(String.class)
                 .build();
+        final Option deduConfigFileOption = Option.builder()
+                .longOpt(OPTION_DEDU_CONFIG_FILE)
+                .desc(OPTION_DEDU_CONFIG_FILE_DESC)
+                .required(true)
+                .numberOfArgs(1)
+                .type(String.class)
+                .build();
         final Option helpOption = Option.builder()
                 .longOpt(OPTION_HELP)
                 .desc(OPTION_HELP_DESC)
@@ -104,6 +114,7 @@ public class CommandLineInterface {
                 .build();
         final Options options = new Options();
         options.addOption(configFileOption);
+        options.addOption(deduConfigFileOption);
         options.addOption(helpOption);
         options.addOption(userOption);
         return options;
