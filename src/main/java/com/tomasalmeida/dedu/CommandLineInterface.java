@@ -24,7 +24,7 @@ public class CommandLineInterface {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineInterface.class);
 
-    public static final String OPTION_CONFIG_FILE = "config-file";
+    public static final String OPTION_CONFIG_FILE = "kafka-config-file";
     private static final String OPTION_CONFIG_FILE_DESC = "Kafka Config file path";
     public static final String OPTION_DEDU_CONFIG_FILE = "dedu-config-file";
     private static final String OPTION_DEDU_CONFIG_FILE_DESC = "Dedu Config file path";

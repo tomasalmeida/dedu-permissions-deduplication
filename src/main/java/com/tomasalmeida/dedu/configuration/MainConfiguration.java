@@ -3,12 +3,16 @@ package com.tomasalmeida.dedu.configuration;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import com.tomasalmeida.dedu.api.system.PropertiesLoader;
 
 public class MainConfiguration {
+
+    private static final String LOG_LEVEL = "log.level";
+    private static final String DEFAULT_LOG_LEVEL = Level.INFO.toString();
 
     private final String kafkaConfigPath;
     private final DeduConfiguration deduConfiguration;
@@ -21,11 +25,18 @@ public class MainConfiguration {
         this.kafkaConfigPath = kafkaConfigPath;
         this.deduConfiguration = DeduConfiguration.build(deduConfigPath);
         this.principal = principal;
+        setLogLevel();
     }
 
-    @Nullable
-    public String getDeduProperty(@NotNull final String key) {
-        return deduConfiguration.getProperty(key);
+    private void setLogLevel() {
+        final String logLevel = getDeduPropertyOrDefault(LOG_LEVEL, DEFAULT_LOG_LEVEL);
+        final Level level = Level.toLevel(logLevel);
+        LogManager.getRootLogger().setLevel(level);
+    }
+
+    @NotNull
+    public String getDeduPropertyOrDefault(@NotNull final String key, @NotNull final String defaultValue) {
+        return deduConfiguration.getPropertyOrDefault(key, defaultValue);
     }
 
     @NotNull
