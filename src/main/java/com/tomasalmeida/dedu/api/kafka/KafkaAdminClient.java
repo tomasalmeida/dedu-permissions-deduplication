@@ -10,6 +10,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeAclsResult;
 import org.apache.kafka.common.acl.AclBindingFilter;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
+import org.apache.kafka.common.resource.ResourceType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,13 @@ public class KafkaAdminClient implements Closeable {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaAdminClient.class);
 
     private final AdminClient adminClient;
+    private final ResourceCache cache;
+
     private Boolean closed = false;
 
     private KafkaAdminClient(final AdminClient adminClient) {
         this.adminClient = adminClient;
+        this.cache = new ResourceCache();
     }
 
     @NotNull
@@ -50,11 +54,23 @@ public class KafkaAdminClient implements Closeable {
         }
     }
 
-    public DescribeAclsResult describeAcls(final AclBindingFilter filter) {
+    @NotNull
+    public DescribeAclsResult describeAcls(@NotNull final AclBindingFilter filter) {
         return adminClient.describeAcls(filter);
     }
 
-    public boolean topicExists(final String topicName) {
+    public boolean topicExists(@NotNull final String topicName) {
+        Boolean topicExists = cache.isResourceResultCached(topicName, ResourceType.TOPIC);
+
+        // if there is nothing in the cache, check Kafka and update cache
+        if (topicExists == null) {
+            topicExists = checkResourceInKafka(topicName);
+            cache.cacheResourceExists(topicName, ResourceType.TOPIC, topicExists);
+        }
+        return topicExists;
+    }
+
+    private boolean checkResourceInKafka(@NotNull final String topicName) {
         try {
             LOGGER.debug("Searching if topic [{}] exists.", topicName);
 
