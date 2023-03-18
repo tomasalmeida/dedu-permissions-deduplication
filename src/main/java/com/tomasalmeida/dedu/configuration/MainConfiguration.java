@@ -19,13 +19,19 @@ public class MainConfiguration {
     private final String principal;
 
 
-    public MainConfiguration(@NotNull final String kafkaConfigPath,
+    private MainConfiguration(@NotNull final String kafkaConfigPath,
                              @NotNull final String deduConfigPath,
                              @NotNull final String principal) throws IOException {
         this.kafkaConfigPath = kafkaConfigPath;
         this.deduConfiguration = DeduConfiguration.build(deduConfigPath);
         this.principal = principal;
         setLogLevel();
+    }
+
+    public static MainConfiguration build(@NotNull final String kafkaConfigPath,
+                                          @NotNull final String deduConfigPath,
+                                          @NotNull final String principal) throws IOException {
+        return new MainConfiguration(kafkaConfigPath, deduConfigPath, principal);
     }
 
     private void setLogLevel() {

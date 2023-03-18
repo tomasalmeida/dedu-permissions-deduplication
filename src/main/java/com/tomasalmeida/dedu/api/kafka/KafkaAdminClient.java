@@ -2,15 +2,13 @@ package com.tomasalmeida.dedu.api.kafka;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeAclsResult;
 import org.apache.kafka.common.acl.AclBindingFilter;
-import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
-import org.apache.kafka.common.resource.ResourceType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +23,13 @@ public class KafkaAdminClient implements Closeable {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaAdminClient.class);
 
     private final AdminClient adminClient;
-    private final ResourceCache cache;
+    private final ResourceController resourceController;
 
     private Boolean closed = false;
 
     private KafkaAdminClient(final AdminClient adminClient) {
         this.adminClient = adminClient;
-        this.cache = new ResourceCache();
+        this.resourceController = new ResourceController();
     }
 
     @NotNull
@@ -59,32 +57,27 @@ public class KafkaAdminClient implements Closeable {
         return adminClient.describeAcls(filter);
     }
 
-    public boolean topicExists(@NotNull final String topicName) {
-        Boolean topicExists = cache.isResourceResultCached(topicName, ResourceType.TOPIC);
-
-        // if there is nothing in the cache, check Kafka and update cache
-        if (topicExists == null) {
-            topicExists = checkTopicExistsInKafka(topicName);
-            cache.cacheResourceExists(topicName, ResourceType.TOPIC, topicExists);
-        }
-        return topicExists;
+    public boolean isTopicPresent(@NotNull final String topicName) {
+        fillTopicDataIfNeeded();
+        return resourceController.topicExists(topicName);
     }
 
-    private boolean checkTopicExistsInKafka(@NotNull final String topicName) {
-        try {
-            LOGGER.debug("Searching if topic [{}] exists.", topicName);
+    public boolean doesTopicMatches(@NotNull final String topicNamePrefix) {
+        fillTopicDataIfNeeded();
+        return resourceController.topicPrefixMatches(topicNamePrefix);
+    }
 
-            return adminClient
-                    .describeTopics(List.of(topicName))
-                    .allTopicNames()
-                    .thenApply(map -> map.size() > 0)
-                    .get();
-        } catch (final ExecutionException | InterruptedException exception) {
-            if (exception.getCause() instanceof UnknownTopicOrPartitionException) {
-                LOGGER.debug("Topic [{}] was not found.", topicName, exception);
-                return false;
+    private void fillTopicDataIfNeeded() {
+        if (resourceController.hasNoTopicInfo()) {
+            try {
+                final Set<String> topicNames = adminClient.listTopics()
+                        .names()
+                        .get();
+                resourceController.addTopics(topicNames);
+            } catch (final InterruptedException | ExecutionException e) {
+                LOGGER.error("Unable to get topic names.", e);
+                throw new KafkaAdminException(e);
             }
-            throw new KafkaAdminException(exception);
         }
     }
 }

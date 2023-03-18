@@ -4,24 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
+import java.util.Set;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeAclsResult;
-import org.apache.kafka.clients.admin.DescribeTopicsResult;
-import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.acl.AclBindingFilter;
-import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,17 +28,14 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.tomasalmeida.dedu.api.system.PropertiesLoader;
 import com.tomasalmeida.dedu.configuration.MainConfiguration;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
 class KafkaAdminClientTest {
 
-    private static final String KAFKA_CONFIG_PATH = "/etc/path/to/file";
-    private static final String DEDU_CONFIG_PATH = "/etc/path/to/another/file";
-    private static final String PRINCIPAL = "principal";
     private static final String TOPIC = "topic-name";
+    private static final String TOPIC2 = "topic-name2";
 
     @Mock
     private AdminClient adminClient;
@@ -54,32 +46,27 @@ class KafkaAdminClientTest {
     @Mock
     private Properties properties;
     @Mock
-    private DescribeTopicsResult describeTopicResult;
-    @Mock
-    private TopicDescription topicDescription;
+    private MainConfiguration mainConfiguration;
 
     private MockedStatic<AdminClient> adminClientMocked;
-    private MockedStatic<PropertiesLoader> propertiesLoaderMocked;
-    private MainConfiguration mainConfiguration;
+
     private KafkaAdminClient kafkaAdminClient;
     private DescribeAclsResult describeAclsResult;
 
     @BeforeEach
-    void beforeEach() {
-        givenAdminClientIsCreated();
+    void beforeEach() throws IOException {
         givenPropertiesCanBeLoaded();
+        givenAdminClientIsCreated();
     }
 
     @AfterEach
     void afterEach() {
         thenAdminClientMockIsClosed();
-        thenPropertiesMockIsClosed();
     }
 
     @Test
     void shouldReturnDescribeAcls() throws Exception {
         givenAdminClientReturnsAcls();
-        givenConfigurationIsCreated();
         givenAdminclientIsCreated();
 
         whenDescribeAclsIsCalled();
@@ -89,7 +76,6 @@ class KafkaAdminClientTest {
 
     @Test
     void shouldCloseCorrectly() throws Exception {
-        givenConfigurationIsCreated();
         givenAdminclientIsCreated();
 
         whenKafkaAdminIsClosed();
@@ -99,7 +85,6 @@ class KafkaAdminClientTest {
 
     @Test
     void shouldCloseCorrectlyWhenCloseIsCalledTwice() throws Exception {
-        givenConfigurationIsCreated();
         givenAdminclientIsCreated();
 
         whenKafkaAdminIsClosed();
@@ -110,39 +95,32 @@ class KafkaAdminClientTest {
 
     @Test
     void shouldReturnTrueIfTopicExists() throws Exception {
-        givenConfigurationIsCreated();
         givenAdminclientIsCreated();
-        givenAdminClientFindsTopic();
+        givenKafkaAdminListTopics();
 
-        final boolean topicExists = whenAdminClientTopicExists();
+        final boolean topicExists = whenAdminClientTopicExists(TOPIC);
 
         assertTrue(topicExists);
     }
 
     @Test
     void shouldReturnFalseIfTopicDoesNotExist() throws Exception {
-        givenConfigurationIsCreated();
         givenAdminclientIsCreated();
-        givenAdminClientDoesNotFindTopic();
+        givenKafkaAdminListTopics();
 
-        final boolean topicExists = whenAdminClientTopicExists();
+        final boolean topicExists = whenAdminClientTopicExists(TOPIC2);
 
         assertFalse(topicExists);
     }
 
-    private void givenAdminClientFindsTopic() {
-        final Map<String, TopicDescription> topicDescriptionMap = Map.of(TOPIC, topicDescription);
-        final KafkaFuture<Map<String, TopicDescription>> futureTopicDescription = KafkaFuture.completedFuture(topicDescriptionMap);
-        when(adminClient.describeTopics(anyList())).thenReturn(describeTopicResult);
-        when(describeTopicResult.allTopicNames()).thenReturn(futureTopicDescription);
-    }
+    private void givenKafkaAdminListTopics(){
+        final Set<String> topicNames = Set.of(TOPIC);
+        final KafkaFuture<Set<String>> futureTopicNames = KafkaFuture.completedFuture(topicNames);
 
-    private void givenAdminClientDoesNotFindTopic() {
-        when(adminClient.describeTopics(anyList())).thenReturn(describeTopicResult);
-        given(describeTopicResult.allTopicNames())
-                .willAnswer(invocation -> {
-                    throw new ExecutionException(new UnknownTopicOrPartitionException());
-                });
+        final ListTopicsResult listTopicResult  = mock(ListTopicsResult.class);
+
+        when(adminClient.listTopics()).thenReturn(listTopicResult);
+        when(listTopicResult.names()).thenReturn(futureTopicNames);
     }
 
     private void givenAdminClientIsCreated() {
@@ -151,18 +129,12 @@ class KafkaAdminClientTest {
                 .thenReturn(adminClient);
     }
 
-    private void givenPropertiesCanBeLoaded() {
-        propertiesLoaderMocked = Mockito.mockStatic(PropertiesLoader.class);
-        propertiesLoaderMocked.when(() -> PropertiesLoader.loadFromFile(anyString()))
-                .thenReturn(properties);
+    private void givenPropertiesCanBeLoaded() throws IOException {
+        when(mainConfiguration.getKafkaConfigProperties()).thenReturn(properties);
     }
 
     private void givenAdminClientReturnsAcls() {
         when(adminClient.describeAcls(filter)).thenReturn(mockedDescribeAcls);
-    }
-
-    private void givenConfigurationIsCreated() throws IOException {
-        mainConfiguration = new MainConfiguration(KAFKA_CONFIG_PATH, DEDU_CONFIG_PATH, PRINCIPAL);
     }
 
     private void givenAdminclientIsCreated() throws Exception {
@@ -177,16 +149,12 @@ class KafkaAdminClientTest {
         kafkaAdminClient.close();
     }
 
-    private boolean whenAdminClientTopicExists() {
-        return kafkaAdminClient.topicExists(TOPIC);
+    private boolean whenAdminClientTopicExists(final String topic) {
+        return kafkaAdminClient.isTopicPresent(topic);
     }
 
     private void thenAdminClientMockIsClosed() {
         adminClientMocked.close();
-    }
-
-    private void thenPropertiesMockIsClosed() {
-        propertiesLoaderMocked.close();
     }
 
     private void thenAdminClientDescribeAclsIsCalled() {
