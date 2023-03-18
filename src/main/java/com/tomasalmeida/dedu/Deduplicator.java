@@ -32,7 +32,7 @@ public class Deduplicator implements AutoCloseable {
     public static Deduplicator build(@NotNull final String kafkaConfigPath,
                                      @NotNull final String deduConfigPath,
                                      @NotNull final String principal) throws IOException {
-        final MainConfiguration mainConfiguration = new MainConfiguration(kafkaConfigPath, deduConfigPath, principal);
+        final MainConfiguration mainConfiguration = MainConfiguration.build(kafkaConfigPath, deduConfigPath, principal);
         final KafkaAdminClient kafkaAdminClient = KafkaAdminClient.build(mainConfiguration);
         return new Deduplicator(kafkaAdminClient, mainConfiguration);
     }

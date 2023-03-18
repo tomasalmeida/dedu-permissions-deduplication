@@ -6,26 +6,35 @@ import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import com.tomasalmeida.dedu.api.system.PropertiesLoader;
 
 public class MainConfiguration {
 
-    private static final String LOG_LEVEL = "log.level";
-    private static final String DEFAULT_LOG_LEVEL = Level.INFO.toString();
+    @VisibleForTesting
+    static final String LOG_LEVEL = "log.level";
+    @VisibleForTesting
+    static final String DEFAULT_LOG_LEVEL = Level.INFO.toString();
 
     private final String kafkaConfigPath;
     private final DeduConfiguration deduConfiguration;
     private final String principal;
 
 
-    public MainConfiguration(@NotNull final String kafkaConfigPath,
-                             @NotNull final String deduConfigPath,
-                             @NotNull final String principal) throws IOException {
+    private MainConfiguration(@NotNull final String kafkaConfigPath,
+                              @NotNull final String deduConfigPath,
+                              @NotNull final String principal) throws IOException {
         this.kafkaConfigPath = kafkaConfigPath;
         this.deduConfiguration = DeduConfiguration.build(deduConfigPath);
         this.principal = principal;
         setLogLevel();
+    }
+
+    public static MainConfiguration build(@NotNull final String kafkaConfigPath,
+                                          @NotNull final String deduConfigPath,
+                                          @NotNull final String principal) throws IOException {
+        return new MainConfiguration(kafkaConfigPath, deduConfigPath, principal);
     }
 
     private void setLogLevel() {

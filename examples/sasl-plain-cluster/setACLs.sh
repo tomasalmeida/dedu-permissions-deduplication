@@ -20,10 +20,16 @@ docker-compose exec kafka1 kafka-acls --bootstrap-server kafka1:19091 --command-
   --add --consumer --producer --allow-principal "User:alice" --group '*' \
   --topic topic-test11 --topic topic-test12 --topic topic-test13 --topic topic-test14 --topic topic-test15 --topic topic-testDeleted
 
-# set a redundant permission
+# set a redundant prefix permission
 docker-compose exec kafka1 kafka-acls --bootstrap-server kafka1:19091 --command-config /etc/kafka/secrets/clients/kafka-user.properties \
   --add --operation READ --allow-principal "User:alice" --group '*' \
   --topic topic-test1  --resource-pattern-type prefixed
+
+# set a deleted prefix permission
+docker-compose exec kafka1 kafka-acls --bootstrap-server kafka1:19091 --command-config /etc/kafka/secrets/clients/kafka-user.properties \
+  --add --operation READ --allow-principal "User:alice" --group '*' \
+  --topic topic-testDeleted  --resource-pattern-type prefixed
+
 
 # show permissions
 docker-compose exec kafka1 kafka-acls --bootstrap-server kafka1:19091 --command-config /etc/kafka/secrets/clients/kafka-user.properties \

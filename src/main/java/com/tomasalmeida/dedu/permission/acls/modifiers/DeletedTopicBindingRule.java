@@ -48,22 +48,26 @@ public class DeletedTopicBindingRule implements BindingDeletionRule {
 
     private boolean isTopicPermissionObsolete(@NotNull final PermissionBinding permission) {
         final String resourceName = permission.getResourceName();
+        final boolean specificResource = isSpecificResource(resourceName);
+
         switch (permission.getPatternType()) {
             case LITERAL:
-                return isSpecificResource(resourceName) && isTopicRemoved(resourceName);
+                return specificResource && isTopicRemoved(resourceName);
             case PREFIXED:
-                return isPrefixUnused(permission);
+                return specificResource && isPrefixUnused(resourceName);
             default:
                 return false;
         }
     }
 
-    private boolean isPrefixUnused(@NotNull final PermissionBinding permission) {
-        return permission == null;
+    private boolean isPrefixUnused(@NotNull final String topicNamePrefix) {
+        final boolean topicPrefixIsUsed = adminClient.doesTopicMatches(topicNamePrefix);
+        LOGGER.debug("Topic pattern [{}] is used? [{}]", topicNamePrefix, topicPrefixIsUsed);
+        return !topicPrefixIsUsed;
     }
 
     private boolean isTopicRemoved(@NotNull final String topicName) {
-        final boolean topicExists = adminClient.topicExists(topicName);
+        final boolean topicExists = adminClient.isTopicPresent(topicName);
         LOGGER.debug("Topic [{}] exists [{}]", topicName, topicExists);
         return !topicExists;
     }

@@ -62,7 +62,7 @@ class DeletedTopicBindingRuleTest {
     }
 
     private void givenTopicExistsReturns(final boolean exists) {
-        when(adminClient.topicExists(TOPIC_NAME)).thenReturn(exists);
+        when(adminClient.isTopicPresent(TOPIC_NAME)).thenReturn(exists);
     }
 
 
