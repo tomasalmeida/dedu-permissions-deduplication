@@ -5,23 +5,20 @@ import java.util.concurrent.TimeUnit;
 import org.apache.kafka.common.resource.ResourceType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class ResourceCache {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaAdminClient.class);
+
     private final Cache<String, ResourceTypeMarkContainer> resourceExistsCache;
-    private final Cache<String, ResourceTypeMarkContainer> resourceDroppedCache;
 
     public ResourceCache() {
-        resourceExistsCache = buildCache();
-        resourceDroppedCache = buildCache();
-    }
-
-    @NotNull
-    private static Cache<String, ResourceTypeMarkContainer> buildCache() {
-        return Caffeine.newBuilder()
+        resourceExistsCache = Caffeine.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .maximumSize(10_000)
                 .build();
@@ -36,36 +33,21 @@ public class ResourceCache {
      */
     @Nullable
     public Boolean isResourceResultCached(@NotNull final String resourceName, @NotNull final ResourceType resourceType) {
-        if (isResourceMarked(resourceExistsCache, resourceName, resourceType)) {
-            return true;
-        }
-        if (isResourceMarked(resourceDroppedCache, resourceName, resourceType)) {
-            return false;
-        }
-        return null;
+        final ResourceTypeMarkContainer resourceTypeFoundMark = resourceExistsCache.getIfPresent(resourceName);
+        return resourceTypeFoundMark != null ? resourceTypeFoundMark.isResourceTypeMarked(resourceType) : null;
     }
 
     public void cacheResourceExists(@NotNull final String resourceName, @NotNull final ResourceType resourceType, final boolean exists) {
-        if (exists) {
-            resourceExistsCache.get(resourceName, unused -> new ResourceTypeMarkContainer()).markResourceType(resourceType);
-        } else {
-            resourceDroppedCache.get(resourceName, unused -> new ResourceTypeMarkContainer()).markResourceType(resourceType);
-        }
-    }
-
-    private boolean isResourceMarked(@NotNull final Cache<String, ResourceTypeMarkContainer> cache,
-                                     @NotNull final String resourceName,
-                                     @NotNull final ResourceType resourceType) {
-        final ResourceTypeMarkContainer resourceTypeFoundMark = cache.getIfPresent(resourceName);
-        return resourceTypeFoundMark != null && resourceTypeFoundMark.isResourceTypeMarked(resourceType);
+        resourceExistsCache.get(resourceName, unused -> new ResourceTypeMarkContainer()).markResourceType(resourceType, exists);
     }
 
     private static class ResourceTypeMarkContainer {
+        private static final int RESOURCE_TYPE_LENGTH = ResourceType.values().length;
 
-        private final boolean[] resourceTypeMarker = new boolean[ResourceType.values().length];
+        private final Boolean[] resourceTypeMarker = new Boolean[RESOURCE_TYPE_LENGTH];
 
-        public void markResourceType(@NotNull final ResourceType resourceType) {
-            resourceTypeMarker[resourceType.code()] = true;
+        public void markResourceType(@NotNull final ResourceType resourceType, final boolean exists) {
+            resourceTypeMarker[resourceType.code()] = exists;
         }
 
         public boolean isResourceTypeMarked(@NotNull final ResourceType resourceType) {

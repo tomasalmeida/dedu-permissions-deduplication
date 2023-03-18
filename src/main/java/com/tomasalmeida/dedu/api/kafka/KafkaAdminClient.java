@@ -64,13 +64,13 @@ public class KafkaAdminClient implements Closeable {
 
         // if there is nothing in the cache, check Kafka and update cache
         if (topicExists == null) {
-            topicExists = checkResourceInKafka(topicName);
+            topicExists = checkTopicExistsInKafka(topicName);
             cache.cacheResourceExists(topicName, ResourceType.TOPIC, topicExists);
         }
         return topicExists;
     }
 
-    private boolean checkResourceInKafka(@NotNull final String topicName) {
+    private boolean checkTopicExistsInKafka(@NotNull final String topicName) {
         try {
             LOGGER.debug("Searching if topic [{}] exists.", topicName);
 
