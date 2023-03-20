@@ -61,7 +61,7 @@ class AclBindingDeduplicatorTest {
     void shouldGetPermissions() throws Exception {
         when(mainConfiguration.getPrincipal()).thenReturn(PRINCIPAL);
         try (final MockedConstruction<AclBindingProvider> mockConstruction = mockConstruction(AclBindingProvider.class)) {
-            aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration);
+            aclBindingDeduplicator = AclBindingDeduplicator.build(adminClient, mainConfiguration);
 
             aclBindingDeduplicator.getPermissionBindingsForUsers();
 

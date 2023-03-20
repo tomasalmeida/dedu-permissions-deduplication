@@ -46,7 +46,7 @@ public class Deduplicator implements AutoCloseable {
 
     private void modifyAclsBindings() throws ExecutionException, InterruptedException {
         LOGGER.debug("Running ACL deduplicator");
-        final AclBindingDeduplicator aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration);
+        final AclBindingDeduplicator aclBindingDeduplicator = AclBindingDeduplicator.build(adminClient, mainConfiguration);
         aclBindingDeduplicator.run();
 
         LOGGER.debug("TODO Running RBAC deduplicator");
