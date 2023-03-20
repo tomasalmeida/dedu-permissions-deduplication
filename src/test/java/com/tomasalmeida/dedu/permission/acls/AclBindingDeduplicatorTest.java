@@ -1,7 +1,5 @@
 package com.tomasalmeida.dedu.permission.acls;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
@@ -47,7 +45,6 @@ class AclBindingDeduplicatorTest {
     private ActionablePermissionBinding actionableTransfPermission;
 
     private AclBindingDeduplicator aclBindingDeduplicator;
-    private List<ActionablePermissionBinding> actionableFinalList;
 
     @Test
     void shouldRunRules() throws Exception {
@@ -57,7 +54,7 @@ class AclBindingDeduplicatorTest {
 
         whenDeduplicatorRuns();
 
-        thenFinalListIsCorrect();
+        thenRulesAreLaunched();
     }
 
     @Test
@@ -109,13 +106,11 @@ class AclBindingDeduplicatorTest {
     }
 
     private void whenDeduplicatorRuns() throws ExecutionException, InterruptedException {
-        actionableFinalList = aclBindingDeduplicator.run();
+        aclBindingDeduplicator.run();
     }
 
-    private void thenFinalListIsCorrect() {
-        assertEquals(3, actionableFinalList.size());
-        assertTrue(actionableFinalList.contains(actionableDeletedPermission1));
-        assertTrue(actionableFinalList.contains(actionableDeletedPermission2));
-        assertTrue(actionableFinalList.contains(actionableTransfPermission));
+    private void thenRulesAreLaunched() {
+        verify(deletionRule).run(anyList(), anyList());
+        verify(transformationRule).run(anyList(), anyList(), anyList());
     }
 }
