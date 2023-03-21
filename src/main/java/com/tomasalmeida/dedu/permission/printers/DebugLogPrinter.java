@@ -21,19 +21,19 @@ public class DebugLogPrinter extends Printer {
     private static final String ACTIONABLE_OUTPUT_ENABLE = "acl.actionable.output.log.enable";
 
 
-    public DebugLogPrinter(final @NotNull MainConfiguration mainConfiguration) {
+    public DebugLogPrinter(@NotNull final MainConfiguration mainConfiguration) {
         super(mainConfiguration);
     }
 
     @Override
-    public void printCurrentBindings(final @NotNull List<PermissionBinding> bindings) {
+    public void printCurrentBindings(@NotNull final List<PermissionBinding> bindings) {
         if (shouldPrint(CURRENT_OUTPUT_ENABLE)) {
             bindings.forEach(binding -> LOGGER.debug(binding.toString()));
         }
     }
 
     @Override
-    public void printActionableBindings(final @NotNull List<ActionablePermissionBinding> bindings) {
+    public void printActionableBindings(@NotNull final List<ActionablePermissionBinding> bindings) {
         if (shouldPrint(ACTIONABLE_OUTPUT_ENABLE)) {
             bindings.forEach(binding -> LOGGER.debug(binding.toString()));
         }

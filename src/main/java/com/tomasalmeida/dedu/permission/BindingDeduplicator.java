@@ -65,7 +65,7 @@ public abstract class BindingDeduplicator {
     }
 
     @NotNull
-    private List<ActionablePermissionBinding> deduplicatePermissions(final List<PermissionBinding> originalPermissions) {
+    private List<ActionablePermissionBinding> deduplicatePermissions(@NotNull final List<PermissionBinding> originalPermissions) {
         final List<ActionablePermissionBinding> actionablePermissions = new ArrayList<>();
 
         final List<PermissionBinding> cleanedPermissions = cleanObsoletePermissions(originalPermissions, actionablePermissions);

@@ -25,7 +25,7 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
     private final MainConfiguration mainConfiguration;
 
     @VisibleForTesting
-    AclBindingDeduplicator(final KafkaAdminClient adminClient, final MainConfiguration mainConfiguration) {
+    AclBindingDeduplicator(@NotNull final KafkaAdminClient adminClient, @NotNull final MainConfiguration mainConfiguration) {
         super("aclBindingDeduplicator");
         this.adminClient = adminClient;
         this.mainConfiguration = mainConfiguration;
@@ -34,7 +34,7 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
     }
 
     public static AclBindingDeduplicator build(@NotNull final KafkaAdminClient adminClient,
-                                             @NotNull final MainConfiguration mainConfiguration) {
+                                               @NotNull final MainConfiguration mainConfiguration) {
         return new AclBindingDeduplicator(adminClient, mainConfiguration);
     }
 
@@ -44,7 +44,7 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
     }
 
     @VisibleForTesting
-    void addRules(final KafkaAdminClient adminClient) {
+    void addRules(@NotNull final KafkaAdminClient adminClient) {
         this.addRule(new DeletedTopicBindingRule(adminClient));
     }
 

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -93,7 +94,7 @@ class AclBindingDeduplicatorTest {
         aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration) {
 
             @Override
-            void addRules(final KafkaAdminClient adminClient) {
+            void addRules(final @NotNull KafkaAdminClient adminClient) {
                 this.addRule(deletionRule);
                 this.addRule(transformationRule);
             }
