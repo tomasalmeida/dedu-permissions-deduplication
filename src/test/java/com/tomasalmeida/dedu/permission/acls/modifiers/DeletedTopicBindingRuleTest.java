@@ -61,10 +61,45 @@ class DeletedTopicBindingRuleTest {
         thenActionableItemIsEmpty();
     }
 
+    @Test
+    void shouldKeepValidTopicPatternBinding() {
+        givenDeletedTopicBindingModifier();
+        givenPermissionListIsFulfilledWithPattern();
+        givenTopicMatchesReturns(true);
+
+        whenModifierRuns();
+
+        thenActionableItemIsEmpty();
+    }
+
+    @Test
+    void shouldDeleteObsoleteTopicPatternBinding() {
+        givenDeletedTopicBindingModifier();
+        givenPermissionListIsFulfilledWithPattern();
+        givenTopicMatchesReturns(false);
+
+        whenModifierRuns();
+
+        thenItemIsRemoved();
+    }
+
+    @Test
+    void shouldKeepOtherBinding() {
+        givenDeletedTopicBindingModifier();
+        givenPermissionListIsFulfilledWithAnotherPermission();
+
+        whenModifierRuns();
+
+        thenActionableItemIsEmpty();
+    }
+
     private void givenTopicExistsReturns(final boolean exists) {
         when(adminClient.isTopicPresent(TOPIC_NAME)).thenReturn(exists);
     }
 
+    private void givenTopicMatchesReturns(final boolean matches) {
+        when(adminClient.doesTopicMatches(TOPIC_NAME)).thenReturn(matches);
+    }
 
     private void givenDeletedTopicBindingModifier() {
         deletedTopicBindingModifier = new DeletedTopicBindingRule(adminClient);
@@ -72,6 +107,18 @@ class DeletedTopicBindingRuleTest {
 
     private void givenPermissionListIsFulfilled() {
         final ResourcePattern pattern = new ResourcePattern(ResourceType.TOPIC, TOPIC_NAME, PatternType.LITERAL);
+        final AccessControlEntry entry = new AccessControlEntry(PRINCIPAL_NAME, HOST, AclOperation.READ, AclPermissionType.ALLOW);
+        originalPermissions = List.of(new AclPermissionBinding(new AclBinding(pattern, entry)));
+    }
+
+    private void givenPermissionListIsFulfilledWithAnotherPermission() {
+        final ResourcePattern pattern = new ResourcePattern(ResourceType.CLUSTER, "another", PatternType.LITERAL);
+        final AccessControlEntry entry = new AccessControlEntry(PRINCIPAL_NAME, HOST, AclOperation.READ, AclPermissionType.ALLOW);
+        originalPermissions = List.of(new AclPermissionBinding(new AclBinding(pattern, entry)));
+    }
+
+    private void givenPermissionListIsFulfilledWithPattern() {
+        final ResourcePattern pattern = new ResourcePattern(ResourceType.TOPIC, TOPIC_NAME, PatternType.PREFIXED);
         final AccessControlEntry entry = new AccessControlEntry(PRINCIPAL_NAME, HOST, AclOperation.READ, AclPermissionType.ALLOW);
         originalPermissions = List.of(new AclPermissionBinding(new AclBinding(pattern, entry)));
     }

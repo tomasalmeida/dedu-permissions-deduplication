@@ -1,7 +1,6 @@
 package com.tomasalmeida.dedu;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.acls.AclBindingDeduplicator;
-import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 
 /**
  * Deduplicator coordinator
@@ -47,11 +45,11 @@ public class Deduplicator implements AutoCloseable {
     }
 
     private void modifyAclsBindings() throws ExecutionException, InterruptedException {
-        final AclBindingDeduplicator aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration);
+        LOGGER.debug("Running ACL deduplicator");
+        final AclBindingDeduplicator aclBindingDeduplicator = AclBindingDeduplicator.build(adminClient, mainConfiguration);
+        aclBindingDeduplicator.run();
 
-        final List<ActionablePermissionBinding> newPermissions = aclBindingDeduplicator.run();
-
-        newPermissions
-                .forEach(newPermission -> LOGGER.info("Actionable permission is [{}]", newPermission));
+        LOGGER.debug("TODO Running RBAC deduplicator");
+        // add rbacBindingDeduplicator in the future
     }
 }

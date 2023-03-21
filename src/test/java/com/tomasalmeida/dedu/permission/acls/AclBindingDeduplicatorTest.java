@@ -1,7 +1,5 @@
 package com.tomasalmeida.dedu.permission.acls;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
@@ -10,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -47,7 +46,6 @@ class AclBindingDeduplicatorTest {
     private ActionablePermissionBinding actionableTransfPermission;
 
     private AclBindingDeduplicator aclBindingDeduplicator;
-    private List<ActionablePermissionBinding> actionableFinalList;
 
     @Test
     void shouldRunRules() throws Exception {
@@ -57,14 +55,14 @@ class AclBindingDeduplicatorTest {
 
         whenDeduplicatorRuns();
 
-        thenFinalListIsCorrect();
+        thenRulesAreLaunched();
     }
 
     @Test
     void shouldGetPermissions() throws Exception {
         when(mainConfiguration.getPrincipal()).thenReturn(PRINCIPAL);
         try (final MockedConstruction<AclBindingProvider> mockConstruction = mockConstruction(AclBindingProvider.class)) {
-            aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration);
+            aclBindingDeduplicator = AclBindingDeduplicator.build(adminClient, mainConfiguration);
 
             aclBindingDeduplicator.getPermissionBindingsForUsers();
 
@@ -96,7 +94,7 @@ class AclBindingDeduplicatorTest {
         aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration) {
 
             @Override
-            void addRules(final KafkaAdminClient adminClient) {
+            void addRules(final @NotNull KafkaAdminClient adminClient) {
                 this.addRule(deletionRule);
                 this.addRule(transformationRule);
             }
@@ -109,13 +107,11 @@ class AclBindingDeduplicatorTest {
     }
 
     private void whenDeduplicatorRuns() throws ExecutionException, InterruptedException {
-        actionableFinalList = aclBindingDeduplicator.run();
+        aclBindingDeduplicator.run();
     }
 
-    private void thenFinalListIsCorrect() {
-        assertEquals(3, actionableFinalList.size());
-        assertTrue(actionableFinalList.contains(actionableDeletedPermission1));
-        assertTrue(actionableFinalList.contains(actionableDeletedPermission2));
-        assertTrue(actionableFinalList.contains(actionableTransfPermission));
+    private void thenRulesAreLaunched() {
+        verify(deletionRule).run(anyList(), anyList());
+        verify(transformationRule).run(anyList(), anyList(), anyList());
     }
 }

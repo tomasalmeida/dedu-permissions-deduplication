@@ -113,6 +113,26 @@ class KafkaAdminClientTest {
         assertFalse(topicExists);
     }
 
+    @Test
+    void shouldReturnTrueIfTopicPatternMatches() throws Exception {
+        givenAdminclientIsCreated();
+        givenKafkaAdminListTopics();
+
+        final boolean topicMatches = whenAdminClientTopicPatternMatches(TOPIC);
+
+        assertTrue(topicMatches);
+    }
+
+    @Test
+    void shouldReturnFalseIfTopicPatternDoesNotMatch() throws Exception {
+        givenAdminclientIsCreated();
+        givenKafkaAdminListTopics();
+
+        final boolean topicMatches = whenAdminClientTopicPatternMatches(TOPIC2);
+
+        assertFalse(topicMatches);
+    }
+
     private void givenKafkaAdminListTopics(){
         final Set<String> topicNames = Set.of(TOPIC);
         final KafkaFuture<Set<String>> futureTopicNames = KafkaFuture.completedFuture(topicNames);
@@ -151,6 +171,10 @@ class KafkaAdminClientTest {
 
     private boolean whenAdminClientTopicExists(final String topic) {
         return kafkaAdminClient.isTopicPresent(topic);
+    }
+
+    private boolean whenAdminClientTopicPatternMatches(final String topic) {
+        return kafkaAdminClient.doesTopicMatches(topic);
     }
 
     private void thenAdminClientMockIsClosed() {

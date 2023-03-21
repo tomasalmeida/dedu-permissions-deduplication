@@ -14,6 +14,7 @@ import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 import com.tomasalmeida.dedu.permission.modifier.BindingTransformationRule;
 import com.tomasalmeida.dedu.permission.modifier.Rule;
+import com.tomasalmeida.dedu.permission.printers.Printer;
 
 public abstract class BindingDeduplicator {
 
@@ -21,15 +22,18 @@ public abstract class BindingDeduplicator {
 
     private final List<BindingDeletionRule> deletionModifiers;
     private final List<BindingTransformationRule> transformationModifiers;
+    private final List<Printer> printers;
+
     private final String name;
 
     public BindingDeduplicator(@NotNull final String name) {
         this.name = name;
         this.deletionModifiers = new ArrayList<>();
         this.transformationModifiers = new ArrayList<>();
+        this.printers = new ArrayList<>();
     }
 
-    protected void addRule(final Rule rule) {
+    protected void addRule(@NotNull final Rule rule) {
         if (rule instanceof BindingDeletionRule) {
             deletionModifiers.add((BindingDeletionRule) rule);
         } else if (rule instanceof BindingTransformationRule) {
@@ -38,11 +42,30 @@ public abstract class BindingDeduplicator {
         LOGGER.debug("Rule [{}] added to Binding deduplicator [{}]", rule, name);
     }
 
+    protected void addPrinter(@NotNull final Printer printer) {
+        printers.add(printer);
+    }
+
     protected abstract List<PermissionBinding> getPermissionBindingsForUsers() throws ExecutionException, InterruptedException;
 
-    @NotNull
-    public List<ActionablePermissionBinding> run() throws ExecutionException, InterruptedException {
+    public void run() throws ExecutionException, InterruptedException {
         final List<PermissionBinding> originalPermissions = getPermissionBindingsForUsers();
+
+        final List<ActionablePermissionBinding> actionablePermissionBindings = deduplicatePermissions(originalPermissions);
+
+        printPermissions(originalPermissions, actionablePermissionBindings);
+    }
+
+    private void printPermissions(@NotNull final List<PermissionBinding> originalPermissions,
+                                  @NotNull final List<ActionablePermissionBinding> actionablePermissions) {
+        for (final Printer printer : printers) {
+            printer.printCurrentBindings(originalPermissions);
+            printer.printActionableBindings(actionablePermissions);
+        }
+    }
+
+    @NotNull
+    private List<ActionablePermissionBinding> deduplicatePermissions(@NotNull final List<PermissionBinding> originalPermissions) {
         final List<ActionablePermissionBinding> actionablePermissions = new ArrayList<>();
 
         final List<PermissionBinding> cleanedPermissions = cleanObsoletePermissions(originalPermissions, actionablePermissions);

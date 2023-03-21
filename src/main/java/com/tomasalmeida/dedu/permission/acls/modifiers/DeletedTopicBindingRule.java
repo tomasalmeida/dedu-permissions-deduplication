@@ -34,7 +34,7 @@ public class DeletedTopicBindingRule implements BindingDeletionRule {
 
     @NotNull
     private ActionablePermissionBinding createActionablePermissionForDeletion(@NotNull final PermissionBinding permission) {
-        return new ActionablePermissionBinding(permission, ActionablePermissionBinding.Action.DELETE, "Resource topic was deleted.");
+        return new ActionablePermissionBinding(permission, ActionablePermissionBinding.Action.DELETE, "No topics match the criteria.");
     }
 
     private boolean isPermissionObsolete(@NotNull final PermissionBinding permission) {
