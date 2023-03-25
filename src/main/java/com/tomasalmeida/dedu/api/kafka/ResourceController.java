@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class ResourceController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaAdminClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceController.class);
 
     private final SortedSet<String> topics = new TreeSet<>();
 

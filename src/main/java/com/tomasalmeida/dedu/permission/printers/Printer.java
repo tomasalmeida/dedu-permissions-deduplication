@@ -14,7 +14,7 @@ public abstract class Printer {
 
     private final MainConfiguration mainConfiguration;
 
-    public Printer(@NotNull final MainConfiguration mainConfiguration) {
+    protected Printer(@NotNull final MainConfiguration mainConfiguration) {
         this.mainConfiguration = mainConfiguration;
     }
 

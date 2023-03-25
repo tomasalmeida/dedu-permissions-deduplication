@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.configuration.MainConfiguration;
-import com.tomasalmeida.dedu.permission.acls.AclBindingDeduplicator;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 import com.tomasalmeida.dedu.permission.printers.Printer;
@@ -22,18 +21,17 @@ import com.tomasalmeida.dedu.permission.printers.exception.KafkaPrinterException
 
 public class CsvAclPrinter extends Printer {
 
-    private static final String[] CURRENT_CSV_HEADER = {"resourceType", "resourceName", "patternType", "host", "permissionType",
-            "operation", "principal"};
-    private static final String[] ACTIONABLE_CSV_HEADER = {"action", "note", "resourceType", "resourceName", "patternType", "host",
-            "permissionType", "operation", "principal"};
     static final String CURRENT_OUTPUT_ENABLE = "acl.current.output.csv.enable";
     static final String CURRENT_OUTPUT_FILE_PATH = "acl.current.output.csv.path";
     static final String CURRENT_OUTPUT_FILE_PATH_DEFAULT = "current.csv";
     static final String ACTIONABLE_OUTPUT_ENABLE = "acl.actionable.output.csv.enable";
     static final String ACTIONABLE_OUTPUT_FILE_PATH = "acl.actionable.output.csv.path";
     static final String ACTIONABLE_OUTPUT_FILE_PATH_DEFAULT = "actionable.csv";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AclBindingDeduplicator.class);
+    private static final String[] CURRENT_CSV_HEADER = {"resourceType", "resourceName", "patternType", "host", "permissionType",
+            "operation", "principal"};
+    private static final String[] ACTIONABLE_CSV_HEADER = {"action", "note", "resourceType", "resourceName", "patternType", "host",
+            "permissionType", "operation", "principal"};
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvAclPrinter.class);
 
     public CsvAclPrinter(@NotNull final MainConfiguration mainConfiguration) {
         super(mainConfiguration);

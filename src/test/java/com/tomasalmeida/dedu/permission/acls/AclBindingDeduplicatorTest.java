@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -101,7 +102,7 @@ class AclBindingDeduplicatorTest {
 
             @Override
             protected List<PermissionBinding> getPermissionBindingsForUsers() {
-                return List.of();
+                return new ArrayList<>();
             }
         };
     }
