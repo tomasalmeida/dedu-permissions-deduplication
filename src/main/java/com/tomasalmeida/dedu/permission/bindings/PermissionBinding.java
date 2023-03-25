@@ -29,7 +29,7 @@ public abstract class PermissionBinding {
      *
      * @param permission to be cloned
      */
-    public PermissionBinding(@NotNull final PermissionBinding permission) {
+    protected PermissionBinding(@NotNull final PermissionBinding permission) {
         this.resourceType = permission.resourceType;
         this.resourceName = permission.resourceName;
         this.patternType = permission.patternType;

@@ -25,7 +25,7 @@ public class KafkaAdminClient implements Closeable {
     private final AdminClient adminClient;
     private final ResourceController resourceController;
 
-    private Boolean closed = false;
+    private boolean closed = false;
 
     private KafkaAdminClient(final AdminClient adminClient) {
         this.adminClient = adminClient;
@@ -46,6 +46,7 @@ public class KafkaAdminClient implements Closeable {
     public void close() {
         synchronized (adminClient) {
             if (!closed) {
+                LOGGER.error("Close admin");
                 adminClient.close();
                 closed = true;
             }
@@ -75,7 +76,8 @@ public class KafkaAdminClient implements Closeable {
                         .get();
                 resourceController.addTopics(topicNames);
             } catch (final InterruptedException | ExecutionException e) {
-                LOGGER.error("Unable to get topic names.", e);
+                // Restore interrupted state...
+                Thread.currentThread().interrupt();
                 throw new KafkaAdminException(e);
             }
         }

@@ -11,9 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 public class CandidatesGroup {
+
+    private final PermissionBinding master;
     final List<PermissionBinding> literalBindings = new ArrayList<>();
     final List<PermissionBinding> prefixBindings = new ArrayList<>();
-    private final PermissionBinding master;
 
     public CandidatesGroup(@NotNull final PermissionBinding binding) {
         this.master = binding;

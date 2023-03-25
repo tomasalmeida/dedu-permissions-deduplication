@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
+import com.tomasalmeida.dedu.com.tomasalmeida.tests.acls.AclPermissionCreator;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
@@ -32,6 +33,7 @@ class DeletedTopicBindingRuleTest {
     private static final String TOPIC_NAME = "topic-topic";
     private static final String PRINCIPAL_NAME = "principal";
     private static final String HOST = "*";
+
     @Mock
     KafkaAdminClient adminClient;
 
@@ -106,9 +108,8 @@ class DeletedTopicBindingRuleTest {
     }
 
     private void givenPermissionListIsFulfilled() {
-        final ResourcePattern pattern = new ResourcePattern(ResourceType.TOPIC, TOPIC_NAME, PatternType.LITERAL);
-        final AccessControlEntry entry = new AccessControlEntry(PRINCIPAL_NAME, HOST, AclOperation.READ, AclPermissionType.ALLOW);
-        originalPermissions = List.of(new AclPermissionBinding(new AclBinding(pattern, entry)));
+        final AclPermissionBinding binding = AclPermissionCreator.givenLiteralTopicBinding(TOPIC_NAME, PRINCIPAL_NAME, HOST);
+        originalPermissions = List.of(binding);
     }
 
     private void givenPermissionListIsFulfilledWithAnotherPermission() {
@@ -118,9 +119,8 @@ class DeletedTopicBindingRuleTest {
     }
 
     private void givenPermissionListIsFulfilledWithPattern() {
-        final ResourcePattern pattern = new ResourcePattern(ResourceType.TOPIC, TOPIC_NAME, PatternType.PREFIXED);
-        final AccessControlEntry entry = new AccessControlEntry(PRINCIPAL_NAME, HOST, AclOperation.READ, AclPermissionType.ALLOW);
-        originalPermissions = List.of(new AclPermissionBinding(new AclBinding(pattern, entry)));
+        final AclPermissionBinding binding = AclPermissionCreator.givenPrefixTopicBinding(TOPIC_NAME, PRINCIPAL_NAME, HOST);
+        originalPermissions = List.of(binding);
     }
 
     private void whenModifierRuns() {

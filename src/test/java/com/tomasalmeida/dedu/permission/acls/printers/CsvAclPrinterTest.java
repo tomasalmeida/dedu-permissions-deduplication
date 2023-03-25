@@ -6,6 +6,7 @@ import static com.tomasalmeida.dedu.permission.acls.printers.CsvAclPrinter.ACTIO
 import static com.tomasalmeida.dedu.permission.acls.printers.CsvAclPrinter.CURRENT_OUTPUT_ENABLE;
 import static com.tomasalmeida.dedu.permission.acls.printers.CsvAclPrinter.CURRENT_OUTPUT_FILE_PATH;
 import static com.tomasalmeida.dedu.permission.acls.printers.CsvAclPrinter.CURRENT_OUTPUT_FILE_PATH_DEFAULT;
+import static com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding.Action.DELETE;
 import static org.apache.kafka.common.acl.AclOperation.READ;
 import static org.apache.kafka.common.acl.AclPermissionType.ALLOW;
 import static org.apache.kafka.common.resource.PatternType.LITERAL;
@@ -21,9 +22,6 @@ import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.kafka.common.acl.AccessControlEntry;
-import org.apache.kafka.common.acl.AclBinding;
-import org.apache.kafka.common.resource.ResourcePattern;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +32,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.tomasalmeida.dedu.com.tomasalmeida.tests.acls.AclPermissionCreator;
 import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
@@ -116,14 +115,11 @@ class CsvAclPrinterTest {
     }
 
     private void givenPermissionBindingIsFulfilled() {
-        final ResourcePattern pattern = new ResourcePattern(TOPIC, TOPIC_NAME, LITERAL);
-        final AccessControlEntry entry = new AccessControlEntry(PRINCIPAL_NAME, HOST, READ, ALLOW);
-        currentBinding = new AclPermissionBinding(new AclBinding(pattern, entry));
+        currentBinding = AclPermissionCreator.givenLiteralTopicBinding(TOPIC_NAME, PRINCIPAL_NAME, HOST);
     }
 
     private void givenActionableBindingIsCreated() {
-        givenPermissionBindingIsFulfilled();
-        actionableBinding = new ActionablePermissionBinding(currentBinding, ActionablePermissionBinding.Action.DELETE, NOTE);
+        actionableBinding = AclPermissionCreator.givenActionLiteralTopicBinding(TOPIC_NAME, PRINCIPAL_NAME, HOST, DELETE, NOTE);
     }
 
     private void whenCurrentBindingIsPrinted() {
@@ -143,7 +139,7 @@ class CsvAclPrinterTest {
     private void thenActionLineIsPrinted() throws IOException {
         verify(csvPrinter).printRecord(recordCaptor.capture());
         final Object[] line = recordCaptor.getValue();
-        assertArrayEquals(new Object[]{ActionablePermissionBinding.Action.DELETE, NOTE, TOPIC, TOPIC_NAME, LITERAL, HOST, ALLOW.toString(),
+        assertArrayEquals(new Object[]{DELETE, NOTE, TOPIC, TOPIC_NAME, LITERAL, HOST, ALLOW.toString(),
                 READ.toString(), PRINCIPAL_NAME}, line);
     }
 }

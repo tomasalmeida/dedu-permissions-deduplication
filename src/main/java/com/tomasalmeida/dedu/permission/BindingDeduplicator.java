@@ -26,7 +26,7 @@ public abstract class BindingDeduplicator {
 
     private final String name;
 
-    public BindingDeduplicator(@NotNull final String name) {
+    protected BindingDeduplicator(@NotNull final String name) {
         this.name = name;
         this.deletionModifiers = new ArrayList<>();
         this.transformationModifiers = new ArrayList<>();

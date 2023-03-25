@@ -76,7 +76,7 @@ public class RedundantBindingRule implements BindingDeletionRule {
     private boolean isBindingRedundant(@NotNull final PermissionBinding prefixedBinding,
                                        @NotNull final PermissionBinding candidateForDeletion,
                                        final boolean isGenericHost) {
-        if (prefixedBinding == candidateForDeletion) {
+        if (prefixedBinding.equals(candidateForDeletion)) {
             return false;
         }
         final boolean literalResourceMatchesPrefix = candidateForDeletion.getResourceName().startsWith(prefixedBinding.getResourceName());
@@ -85,7 +85,10 @@ public class RedundantBindingRule implements BindingDeletionRule {
     }
 
     private List<CandidatesGroup> removeCandidatesWithoutPrefix(@NotNull final List<CandidatesGroup> candidateGroups) {
-        return candidateGroups.stream().filter(candidatesGroup -> candidatesGroup.prefixBindings.size() > 0).collect(Collectors.toList());
+        return candidateGroups
+                .stream()
+                .filter(candidatesGroup -> !candidatesGroup.prefixBindings.isEmpty())
+                .collect(Collectors.toList());
     }
 
     private List<CandidatesGroup> groupByCommonElements(@NotNull final List<PermissionBinding> originalPermissions) {
