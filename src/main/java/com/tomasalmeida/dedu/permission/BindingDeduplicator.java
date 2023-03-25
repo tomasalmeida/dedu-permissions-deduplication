@@ -78,6 +78,7 @@ public abstract class BindingDeduplicator {
                                                              @NotNull final List<ActionablePermissionBinding> actionablePermissions) {
         for (final BindingDeletionRule modifier : deletionModifiers) {
             modifier.run(originalPermissions, actionablePermissions);
+            originalPermissions.removeAll(actionablePermissions);
         }
 
         return originalPermissions

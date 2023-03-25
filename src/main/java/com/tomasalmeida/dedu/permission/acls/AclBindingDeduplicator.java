@@ -13,6 +13,7 @@ import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.BindingDeduplicator;
 import com.tomasalmeida.dedu.permission.BindingProvider;
 import com.tomasalmeida.dedu.permission.acls.modifiers.DeletedTopicBindingRule;
+import com.tomasalmeida.dedu.permission.acls.modifiers.RedundantBindingRule;
 import com.tomasalmeida.dedu.permission.acls.printers.CsvAclPrinter;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 import com.tomasalmeida.dedu.permission.printers.DebugLogPrinter;
@@ -46,6 +47,7 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
     @VisibleForTesting
     void addRules(@NotNull final KafkaAdminClient adminClient) {
         this.addRule(new DeletedTopicBindingRule(adminClient));
+        this.addRule(new RedundantBindingRule());
     }
 
     @Override

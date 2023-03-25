@@ -46,7 +46,7 @@ public class CommandLineInterface {
         try {
             cli.run(args);
         } catch (final Exception e) {
-            LOGGER.error("Unable to run CLI: [{}]", e.getMessage());
+            LOGGER.error("Unable to run CLI.", e);
             cli.printUsage(1);
         }
         exit(0);
