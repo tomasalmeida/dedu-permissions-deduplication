@@ -20,7 +20,6 @@ public class DebugLogPrinter extends Printer {
     private static final String CURRENT_OUTPUT_ENABLE = "acl.current.output.log.enable";
     private static final String ACTIONABLE_OUTPUT_ENABLE = "acl.actionable.output.log.enable";
 
-
     public DebugLogPrinter(@NotNull final MainConfiguration mainConfiguration) {
         super(mainConfiguration);
     }
