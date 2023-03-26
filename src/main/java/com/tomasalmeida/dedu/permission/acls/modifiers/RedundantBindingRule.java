@@ -12,7 +12,7 @@ import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 
 public class RedundantBindingRule implements BindingDeletionRule {
 
-    private static boolean prefixCanFindMatches(@NotNull final PermissionBinding prefixedBinding, @NotNull final PermissionBinding literalBinding) {
+    private boolean prefixCanFindMatches(@NotNull final PermissionBinding prefixedBinding, @NotNull final PermissionBinding literalBinding) {
         return literalBinding.getResourceName().compareTo(prefixedBinding.getResourceName()) > 0;
     }
 
@@ -42,15 +42,20 @@ public class RedundantBindingRule implements BindingDeletionRule {
                 final PermissionBinding literalBinding = candidatesGroup.literalBindings.get(literalPosition);
                 if (isBindingRedundant(prefixedBinding, literalBinding, isGenericHost)) {
                     candidatesGroup.literalBindings.remove(literalPosition);
-                    actionablePermissions.add(new ActionablePermissionBinding(literalBinding,
-                            ActionablePermissionBinding.Action.DELETE,
-                            "Replaced by " + prefixedBinding));
+                    actionablePermissions.add(createActionBinding(prefixedBinding, literalBinding));
                 } else {
                     literalPosition++;
                     prefixCanMatch = prefixCanFindMatches(prefixedBinding, literalBinding);
                 }
             }
         }
+    }
+
+    @NotNull
+    private ActionablePermissionBinding createActionBinding(final PermissionBinding prefixedBinding, final PermissionBinding literalBinding) {
+        return new ActionablePermissionBinding(literalBinding,
+                ActionablePermissionBinding.Action.DELETE,
+                "Replaced by prefixed binding started with [" + prefixedBinding.getResourceName() + "]");
     }
 
     private void removeRedundantPrefixedBindings(@NotNull final CandidatesGroup candidatesGroup, @NotNull final List<ActionablePermissionBinding> actionablePermissions) {
@@ -63,9 +68,7 @@ public class RedundantBindingRule implements BindingDeletionRule {
                 final PermissionBinding candidateForDeletion = candidatesGroup.prefixBindings.get(prefixDeletionCandidatePosition);
                 if (isBindingRedundant(prefixedBinding, candidateForDeletion, isGenericHost)) {
                     candidatesGroup.prefixBindings.remove(candidateForDeletion);
-                    actionablePermissions.add(new ActionablePermissionBinding(candidateForDeletion,
-                            ActionablePermissionBinding.Action.DELETE,
-                            "Replaced by " + prefixedBinding));
+                    actionablePermissions.add(createActionBinding(prefixedBinding, candidateForDeletion));
                 } else {
                     prefixDeletionCandidatePosition++;
                 }
