@@ -14,6 +14,7 @@ import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 import com.tomasalmeida.dedu.permission.modifier.BindingTransformationRule;
 import com.tomasalmeida.dedu.permission.modifier.Rule;
+import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 import com.tomasalmeida.dedu.permission.printers.Printer;
 
 public abstract class BindingDeduplicator {
@@ -49,69 +50,51 @@ public abstract class BindingDeduplicator {
     protected abstract List<PermissionBinding> getPermissionBindingsForUsers() throws ExecutionException, InterruptedException;
 
     public void run() throws ExecutionException, InterruptedException {
+        final ContextRule context = createContext();
+
+        cleanObsoletePermissions(context);
+        optimizePermissions(context);
+
+        printPermissions(context);
+    }
+
+    @NotNull
+    private ContextRule createContext() throws ExecutionException, InterruptedException {
+        final ContextRule context = new ContextRule();
         final List<PermissionBinding> originalPermissions = getPermissionBindingsForUsers();
-
-        final List<ActionablePermissionBinding> actionablePermissionBindings = deduplicatePermissions(originalPermissions);
-
-        printPermissions(originalPermissions, actionablePermissionBindings);
+        context.getOriginalPermissions().addAll(originalPermissions);
+        return context;
     }
 
-    private void printPermissions(@NotNull final List<PermissionBinding> originalPermissions,
-                                  @NotNull final List<ActionablePermissionBinding> actionablePermissions) {
+    private void printPermissions(@NotNull final ContextRule context) {
         for (final Printer printer : printers) {
-            printer.printCurrentBindings(originalPermissions);
-            printer.printActionableBindings(actionablePermissions);
+            printer.printCurrentBindings(context.getOriginalPermissions());
+            printer.printActionableBindings(context.getActionablePermissionBindings());
         }
     }
 
-    @NotNull
-    private List<ActionablePermissionBinding> deduplicatePermissions(@NotNull final List<PermissionBinding> originalPermissions) {
-        final List<ActionablePermissionBinding> actionablePermissions = new ArrayList<>();
-
-        final List<PermissionBinding> cleanedPermissions = cleanObsoletePermissions(originalPermissions, actionablePermissions);
-
-        return optimizePermissions(cleanedPermissions, actionablePermissions);
-    }
-
-    @NotNull
-    private List<PermissionBinding> cleanObsoletePermissions(@NotNull final List<PermissionBinding> originalPermissions,
-                                                             @NotNull final List<ActionablePermissionBinding> actionablePermissions) {
+    private void cleanObsoletePermissions(@NotNull final ContextRule context) {
         for (final BindingDeletionRule modifier : deletionModifiers) {
-            modifier.run(originalPermissions, actionablePermissions);
-            originalPermissions.removeAll(actionablePermissions);
+            modifier.run(context);
+            context.removeActionableFromOriginals();
         }
-
-        return originalPermissions
-                .stream()
-                .filter(permission -> !actionablePermissions.contains(permission))
-                .collect(Collectors.toList());
     }
 
-    @NotNull
-    private List<ActionablePermissionBinding> optimizePermissions(@NotNull final List<PermissionBinding> permissions,
-                                                                  @NotNull final List<ActionablePermissionBinding> actionablePermissions) {
-        final List<ActionablePermissionBinding> deletedPermissions = new ArrayList<>();
-        final List<ActionablePermissionBinding> addedPermissions = new ArrayList<>();
-
+    private void optimizePermissions(@NotNull final ContextRule context) {
         for (final BindingTransformationRule modifier : transformationModifiers) {
-            modifier.run(permissions, addedPermissions, deletedPermissions);
+            modifier.run(context);
+            context.removeActionableFromOriginals();
         }
 
-        final List<ActionablePermissionBinding> unchangedPermissions = getUnchangedPermissions(permissions, deletedPermissions);
+        final List<ActionablePermissionBinding> unchangedPermissions = getUnchangedPermissions(context.getOriginalPermissions());
 
-        // add new, deleted and unchanged permissions to the actionable list
-        actionablePermissions.addAll(addedPermissions);
-        actionablePermissions.addAll(deletedPermissions);
-        actionablePermissions.addAll(unchangedPermissions);
-        return actionablePermissions;
+        context.getActionablePermissionBindings().addAll(unchangedPermissions);
     }
 
     @NotNull
-    private List<ActionablePermissionBinding> getUnchangedPermissions(@NotNull final List<PermissionBinding> permissions,
-                                                                      @NotNull final List<ActionablePermissionBinding> deletedPermissions) {
+    private List<ActionablePermissionBinding> getUnchangedPermissions(@NotNull final List<PermissionBinding> permissions) {
         return permissions
                 .stream()
-                .filter(permission -> !deletedPermissions.contains(permission))
                 .map(this::createUnchangedPermission).collect(Collectors.toList());
     }
 

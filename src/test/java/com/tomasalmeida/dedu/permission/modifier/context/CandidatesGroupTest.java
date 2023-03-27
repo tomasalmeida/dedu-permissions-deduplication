@@ -1,4 +1,4 @@
-package com.tomasalmeida.dedu.permission.acls.modifiers;
+package com.tomasalmeida.dedu.permission.modifier.context;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,10 +41,10 @@ class CandidatesGroupTest {
 
         givenPermissionsAreAdded(candidatesGroup);
 
-        assertEquals(4, candidatesGroup.literalBindings.size());
-        assertEquals(2, candidatesGroup.prefixBindings.size());
-        assertFalse(candidatesGroup.literalBindings.contains(bindL1B));
-        assertFalse(candidatesGroup.prefixBindings.contains(bindP1B));
+        assertEquals(4, candidatesGroup.getLiteralBindings().size());
+        assertEquals(2, candidatesGroup.getPrefixBindings().size());
+        assertFalse(candidatesGroup.getLiteralBindings().contains(bindL1B));
+        assertFalse(candidatesGroup.getPrefixBindings().contains(bindP1B));
     }
 
     @Test
@@ -55,13 +55,13 @@ class CandidatesGroupTest {
         candidatesGroup.sortPrefixBindingByLength();
         candidatesGroup.sortLiteralBindingsByResourceName();
 
-        assertEquals(TOPIC_NAME1, candidatesGroup.prefixBindings.get(0).getResourceName());
-        assertEquals(TOPIC_NAME2, candidatesGroup.prefixBindings.get(1).getResourceName());
+        assertEquals(TOPIC_NAME1, candidatesGroup.getPrefixBindings().get(0).getResourceName());
+        assertEquals(TOPIC_NAME2, candidatesGroup.getPrefixBindings().get(1).getResourceName());
 
-        assertEquals(TOPIC_NAME1, candidatesGroup.literalBindings.get(0).getResourceName());
-        assertEquals(TOPIC_NAME2, candidatesGroup.literalBindings.get(1).getResourceName());
-        assertEquals(TOPIC_NAME3, candidatesGroup.literalBindings.get(2).getResourceName());
-        assertEquals(TOPIC_NAME4, candidatesGroup.literalBindings.get(3).getResourceName());
+        assertEquals(TOPIC_NAME1, candidatesGroup.getLiteralBindings().get(0).getResourceName());
+        assertEquals(TOPIC_NAME2, candidatesGroup.getLiteralBindings().get(1).getResourceName());
+        assertEquals(TOPIC_NAME3, candidatesGroup.getLiteralBindings().get(2).getResourceName());
+        assertEquals(TOPIC_NAME4, candidatesGroup.getLiteralBindings().get(3).getResourceName());
     }
 
     private void givenPermissionsAreAdded(final CandidatesGroup candidatesGroup) {

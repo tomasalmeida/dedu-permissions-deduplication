@@ -1,6 +1,6 @@
 package com.tomasalmeida.dedu.permission.acls;
 
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +25,7 @@ import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 import com.tomasalmeida.dedu.permission.modifier.BindingTransformationRule;
+import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
@@ -75,20 +76,20 @@ class AclBindingDeduplicatorTest {
 
     private void givenDeletionRuleChangeOneElement() {
         Mockito.doAnswer(invocation -> {
-            final List<ActionablePermissionBinding> actionablePermissions = invocation.getArgument(1);
-            actionablePermissions.add(actionableDeletedPermission1);
+            final ContextRule context = invocation.getArgument(0);
+            context.getActionablePermissionBindings().add(actionableDeletedPermission1);
             return null;
-        }).when(deletionRule).run(anyList(), anyList());
+        }).when(deletionRule).run(any(ContextRule.class));
     }
 
     private void givenTransformationRuleChangeOneElement() {
         Mockito.doAnswer(invocation -> {
-            final List<ActionablePermissionBinding> actionableAddedPermissions = invocation.getArgument(1);
-            final List<ActionablePermissionBinding> actionableDeletedPermissions = invocation.getArgument(2);
+            final ContextRule context = invocation.getArgument(0);
+            final List<ActionablePermissionBinding> actionableAddedPermissions = context.getActionablePermissionBindings();
             actionableAddedPermissions.add(actionableDeletedPermission2);
-            actionableDeletedPermissions.add(actionableTransfPermission);
+            actionableAddedPermissions.add(actionableTransfPermission);
             return null;
-        }).when(transformationRule).run(anyList(), anyList(), anyList());
+        }).when(transformationRule).run(any(ContextRule.class));
     }
 
     private void givenAclBindingDeduplicatorIsCreated() {
@@ -112,7 +113,7 @@ class AclBindingDeduplicatorTest {
     }
 
     private void thenRulesAreLaunched() {
-        verify(deletionRule).run(anyList(), anyList());
-        verify(transformationRule).run(anyList(), anyList(), anyList());
+        verify(deletionRule).run(any(ContextRule.class));
+        verify(transformationRule).run(any(ContextRule.class));
     }
 }
