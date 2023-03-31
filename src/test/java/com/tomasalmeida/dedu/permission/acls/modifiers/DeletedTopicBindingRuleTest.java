@@ -25,6 +25,7 @@ import com.tomasalmeida.dedu.com.tomasalmeida.tests.acls.AclPermissionCreator;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
+import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
@@ -124,7 +125,18 @@ class DeletedTopicBindingRuleTest {
     }
 
     private void whenModifierRuns() {
-        deletedTopicBindingModifier.run(originalPermissions, actionablePermissions);
+        final ContextRule context = new ContextRule() {
+            @Override
+            public List<PermissionBinding> getOriginalPermissions() {
+                return originalPermissions;
+            }
+
+            @Override
+            public List<ActionablePermissionBinding> getActionablePermissionBindings() {
+                return actionablePermissions;
+            }
+        };
+        deletedTopicBindingModifier.run(context);
     }
 
     private void thenItemIsRemoved() {

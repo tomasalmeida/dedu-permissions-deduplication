@@ -1,4 +1,4 @@
-package com.tomasalmeida.dedu.permission.acls.modifiers;
+package com.tomasalmeida.dedu.permission.modifier.context;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,6 +10,9 @@ import org.jetbrains.annotations.NotNull;
 
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
+import lombok.Getter;
+
+@Getter
 public class CandidatesGroup {
 
     private final PermissionBinding master;

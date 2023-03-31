@@ -1,11 +1,10 @@
 package com.tomasalmeida.dedu.permission.modifier;
 
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
-import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
-import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
+import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 
 public interface BindingDeletionRule extends Rule {
 
-     void run(List<PermissionBinding> originalPermissions, List<ActionablePermissionBinding> actionablePermissions);
+    void run(@NotNull final ContextRule contextRule);
 }
