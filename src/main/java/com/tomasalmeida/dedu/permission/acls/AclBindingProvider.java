@@ -13,6 +13,7 @@ import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,8 @@ public class AclBindingProvider implements BindingProvider {
 
     @Override
     @NotNull
-    public List<PermissionBinding> retrievePermissionsForPrincipal(@NotNull final String principal) throws ExecutionException, InterruptedException {
+    public List<PermissionBinding> retrievePermissionsForPrincipal(@Nullable final String principal) throws ExecutionException,
+            InterruptedException {
         final AclBindingFilter filter = buildAclFilter(principal);
         final DescribeAclsResult results = adminClient.describeAcls(filter);
         final Collection<AclBinding> aclBindings = results
@@ -42,7 +44,7 @@ public class AclBindingProvider implements BindingProvider {
     }
 
     @NotNull
-    private AclBindingFilter buildAclFilter(final String principal) {
+    private AclBindingFilter buildAclFilter(@Nullable final String principal) {
         final AccessControlEntryFilter entryFilter = new AccessControlEntryFilter(principal, null, AclOperation.ANY, AclPermissionType.ANY);
         final AclBindingFilter aclBindingFilter = new AclBindingFilter(ResourcePatternFilter.ANY, entryFilter);
         LOGGER.debug("Filter for ACL for one principal is [{}]", aclBindingFilter);

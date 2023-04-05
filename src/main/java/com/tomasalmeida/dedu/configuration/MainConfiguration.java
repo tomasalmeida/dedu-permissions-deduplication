@@ -6,6 +6,7 @@ import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import com.tomasalmeida.dedu.api.system.PropertiesLoader;
@@ -24,7 +25,7 @@ public class MainConfiguration {
 
     private MainConfiguration(@NotNull final String kafkaConfigPath,
                               @NotNull final String deduConfigPath,
-                              @NotNull final String principal) throws IOException {
+                              @Nullable final String principal) throws IOException {
         this.kafkaConfigPath = kafkaConfigPath;
         this.deduConfiguration = DeduConfiguration.build(deduConfigPath);
         this.principal = principal;
@@ -33,7 +34,7 @@ public class MainConfiguration {
 
     public static MainConfiguration build(@NotNull final String kafkaConfigPath,
                                           @NotNull final String deduConfigPath,
-                                          @NotNull final String principal) throws IOException {
+                                          @Nullable final String principal) throws IOException {
         return new MainConfiguration(kafkaConfigPath, deduConfigPath, principal);
     }
 
@@ -48,7 +49,7 @@ public class MainConfiguration {
         return deduConfiguration.getPropertyOrDefault(key, defaultValue);
     }
 
-    @NotNull
+    @Nullable
     public String getPrincipal() {
         return principal;
     }
