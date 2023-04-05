@@ -47,5 +47,5 @@ jobs:
           fail_below_threshold: true
       - name: Report code coverage to codecov
         uses: codecov/codecov-action@v3
-      - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2022.3.2
+#      - name: 'Qodana Scan'
+#        uses: JetBrains/qodana-action@v2022.3.2

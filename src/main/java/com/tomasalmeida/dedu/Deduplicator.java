@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class Deduplicator implements AutoCloseable {
     @NotNull
     public static Deduplicator build(@NotNull final String kafkaConfigPath,
                                      @NotNull final String deduConfigPath,
-                                     @NotNull final String principal) throws IOException {
+                                     @Nullable final String principal) throws IOException {
         final MainConfiguration mainConfiguration = MainConfiguration.build(kafkaConfigPath, deduConfigPath, principal);
         final KafkaAdminClient kafkaAdminClient = KafkaAdminClient.build(mainConfiguration);
         return new Deduplicator(kafkaAdminClient, mainConfiguration);
