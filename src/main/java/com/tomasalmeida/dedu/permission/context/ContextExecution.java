@@ -1,4 +1,4 @@
-package com.tomasalmeida.dedu.permission.modifier.context;
+package com.tomasalmeida.dedu.permission.context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
-public class ContextRule {
+public class ContextExecution {
 
     private final List<CandidatesGroup> candidatesGroups = new ArrayList<>();
     private final List<PermissionBinding> originalPermissions = new ArrayList<>();

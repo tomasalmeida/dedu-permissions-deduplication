@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tomasalmeida.dedu.com.tomasalmeida.tests.acls.AclPermissionCreator;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
+import com.tomasalmeida.dedu.permission.context.CandidatesGroup;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)

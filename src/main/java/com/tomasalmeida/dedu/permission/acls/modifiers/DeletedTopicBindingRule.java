@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
+import com.tomasalmeida.dedu.permission.context.ContextExecution;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
-import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 
 public class DeletedTopicBindingRule implements BindingDeletionRule {
 
@@ -24,7 +24,7 @@ public class DeletedTopicBindingRule implements BindingDeletionRule {
     }
 
     @Override
-    public void run(@NotNull final ContextRule context) {
+    public void run(@NotNull final ContextExecution context) {
         final List<PermissionBinding> originalPermissions = context.getOriginalPermissions();
         final List<ActionablePermissionBinding> actionablePermissions = context.getActionablePermissionBindings();
         originalPermissions

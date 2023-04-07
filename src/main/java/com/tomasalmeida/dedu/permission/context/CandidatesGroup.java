@@ -1,4 +1,4 @@
-package com.tomasalmeida.dedu.permission.modifier.context;
+package com.tomasalmeida.dedu.permission.context;
 
 import java.util.ArrayList;
 import java.util.Comparator;

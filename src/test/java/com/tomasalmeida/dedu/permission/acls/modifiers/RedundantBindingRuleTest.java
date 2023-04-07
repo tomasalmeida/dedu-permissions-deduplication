@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.tomasalmeida.dedu.com.tomasalmeida.tests.acls.AclPermissionCreator;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
-import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
+import com.tomasalmeida.dedu.permission.context.ContextExecution;
 
 class RedundantBindingRuleTest {
 
@@ -36,7 +36,7 @@ class RedundantBindingRuleTest {
     void shouldRemoveRedundants() {
         final RedundantBindingRule redundantBindingRule = new RedundantBindingRule();
 
-        final ContextRule context = new ContextRule();
+        final ContextExecution context = new ContextExecution();
         context.getOriginalPermissions().addAll(
                 List.of(bindL1A, bindL2A, bindL3A, bindL4A, bindL1B, bindP1A, bindP2A, bindP1B));
 

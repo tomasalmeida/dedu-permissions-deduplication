@@ -6,9 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
+import com.tomasalmeida.dedu.permission.context.CandidatesGroup;
+import com.tomasalmeida.dedu.permission.context.ContextExecution;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
-import com.tomasalmeida.dedu.permission.modifier.context.CandidatesGroup;
-import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 
 public class RedundantBindingRule implements BindingDeletionRule {
 
@@ -17,10 +17,10 @@ public class RedundantBindingRule implements BindingDeletionRule {
     }
 
     @Override
-    public void run(@NotNull final ContextRule contextRule) {
-        final List<CandidatesGroup> candidateGroups = contextRule.getCandidatesGroups();
+    public void run(@NotNull final ContextExecution contextExecution) {
+        final List<CandidatesGroup> candidateGroups = contextExecution.getCandidatesGroups();
         for (final CandidatesGroup candidatesGroup : candidateGroups) {
-            findRedundantInGroup(candidatesGroup, contextRule.getActionablePermissionBindings());
+            findRedundantInGroup(candidatesGroup, contextExecution.getActionablePermissionBindings());
         }
     }
 
