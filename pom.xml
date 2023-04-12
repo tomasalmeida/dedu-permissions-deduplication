@@ -65,6 +65,7 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-csv.version>1.10.0</commons-csv.version>
         <slf4j2-mock.version>2.3.0</slf4j2-mock.version>
+        <concurrent-trees.version>2.6.2</concurrent-trees.version>
     </properties>
 
     <dependencies>
@@ -136,6 +137,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>${commons-csv.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>codes.rafael.concurrent-trees</groupId>
+            <artifactId>concurrent-trees</artifactId>
+            <version>${concurrent-trees.version}</version>
         </dependency>
     </dependencies>
     <build>

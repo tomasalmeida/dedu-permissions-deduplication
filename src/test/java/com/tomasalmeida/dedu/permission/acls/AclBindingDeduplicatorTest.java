@@ -1,6 +1,8 @@
 package com.tomasalmeida.dedu.permission.acls;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -63,6 +64,10 @@ class AclBindingDeduplicatorTest {
     @Test
     void shouldGetPermissions() throws Exception {
         when(mainConfiguration.getPrincipal()).thenReturn(PRINCIPAL);
+        doAnswer(invocation -> invocation.getArgument(1))
+                .when(mainConfiguration)
+                .getDeduPropertyOrDefault(anyString(), anyString());
+
         try (final MockedConstruction<AclBindingProvider> mockConstruction = mockConstruction(AclBindingProvider.class)) {
             aclBindingDeduplicator = AclBindingDeduplicator.build(adminClient, mainConfiguration);
 
@@ -96,7 +101,7 @@ class AclBindingDeduplicatorTest {
         aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration) {
 
             @Override
-            void addRules(final @NotNull KafkaAdminClient adminClient) {
+            void addRules() {
                 this.addRule(deletionRule);
                 this.addRule(transformationRule);
             }

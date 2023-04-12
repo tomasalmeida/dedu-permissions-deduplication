@@ -36,4 +36,13 @@ public class ResourceController {
         return prefixMatches;
     }
 
+    public long countTopicsWithPrefix(@NotNull final String topicPrefix) {
+        final long countTopics = topics.stream()
+                .parallel()
+                .filter(topic -> topic.startsWith(topicPrefix))
+                .count();
+        LOGGER.debug("Topic prefix [{}] has [{}] matches", topicPrefix, countTopics);
+        return countTopics;
+    }
+
 }

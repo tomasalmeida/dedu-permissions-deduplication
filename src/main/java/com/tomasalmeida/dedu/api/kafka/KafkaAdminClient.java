@@ -68,6 +68,11 @@ public class KafkaAdminClient implements Closeable {
         return resourceController.topicPrefixMatches(topicNamePrefix);
     }
 
+    public long countMatches(@NotNull final String topicPrefix) {
+        fillTopicDataIfNeeded();
+        return resourceController.countTopicsWithPrefix(topicPrefix);
+    }
+
     private void fillTopicDataIfNeeded() {
         if (resourceController.hasNoTopicInfo()) {
             try {

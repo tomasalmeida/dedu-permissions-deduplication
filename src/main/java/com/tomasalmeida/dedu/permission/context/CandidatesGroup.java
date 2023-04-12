@@ -12,7 +12,7 @@ import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 import lombok.Getter;
 
-@Getter
+@Getter (onMethod_ = {@NotNull})
 public class CandidatesGroup {
 
     private final PermissionBinding master;
