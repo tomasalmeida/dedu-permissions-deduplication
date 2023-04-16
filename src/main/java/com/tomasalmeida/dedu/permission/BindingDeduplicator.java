@@ -52,10 +52,12 @@ public abstract class BindingDeduplicator {
     public void run() throws ExecutionException, InterruptedException {
         final ContextExecution context = createContext();
 
+        printCurrentPermissions(context);
+
         cleanObsoletePermissions(context);
         optimizePermissions(context);
 
-        printPermissions(context);
+        printActionablePermissions(context);
     }
 
     @NotNull
@@ -66,9 +68,14 @@ public abstract class BindingDeduplicator {
         return context;
     }
 
-    private void printPermissions(@NotNull final ContextExecution context) {
+    private void printCurrentPermissions(@NotNull final ContextExecution context) {
         for (final Printer printer : printers) {
             printer.printCurrentBindings(context.getOriginalPermissions());
+        }
+    }
+
+    private void printActionablePermissions(@NotNull final ContextExecution context) {
+        for (final Printer printer : printers) {
             printer.printActionableBindings(context.getActionablePermissionBindings());
         }
     }
