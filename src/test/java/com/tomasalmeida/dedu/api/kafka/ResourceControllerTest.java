@@ -1,5 +1,6 @@
 package com.tomasalmeida.dedu.api.kafka;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -19,6 +20,7 @@ class ResourceControllerTest {
     private static final String TOPIC1 = "topic-name1";
     private static final String TOPIC2 = "topic-name2";
     private static final String TOPIC3 = "topic-name3";
+    private static final String TOPIC_PREFIX = "topic-name";
 
     private ResourceController resourceController;
 
@@ -46,6 +48,14 @@ class ResourceControllerTest {
         assertTrue(resourceController.topicPrefixMatches(TOPIC2));
         assertFalse(resourceController.topicPrefixMatches(TOPIC3));
 
+    }
+
+    @Test
+    void shouldCountTopicPrefix() {
+        givenTopicsAreAdded();
+
+        assertFalse(resourceController.hasNoTopicInfo());
+        assertEquals(2, resourceController.countTopicsWithPrefix(TOPIC_PREFIX));
     }
 
     private void givenTopicsAreAdded() {

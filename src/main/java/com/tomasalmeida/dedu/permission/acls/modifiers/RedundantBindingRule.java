@@ -12,16 +12,16 @@ import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 
 public class RedundantBindingRule implements BindingDeletionRule {
 
-    private boolean prefixCanFindMatches(@NotNull final PermissionBinding prefixedBinding, @NotNull final PermissionBinding literalBinding) {
-        return literalBinding.getResourceName().compareTo(prefixedBinding.getResourceName()) > 0;
-    }
-
     @Override
     public void run(@NotNull final ContextExecution contextExecution) {
         final List<CandidatesGroup> candidateGroups = contextExecution.getCandidatesGroups();
         for (final CandidatesGroup candidatesGroup : candidateGroups) {
             findRedundantInGroup(candidatesGroup, contextExecution.getActionablePermissionBindings());
         }
+    }
+    
+    private boolean prefixCanFindMatches(@NotNull final PermissionBinding prefixedBinding, @NotNull final PermissionBinding literalBinding) {
+        return literalBinding.getResourceName().compareTo(prefixedBinding.getResourceName()) > 0;
     }
 
     private void findRedundantInGroup(@NotNull final CandidatesGroup candidatesGroup, @NotNull final List<ActionablePermissionBinding> actionablePermissions) {

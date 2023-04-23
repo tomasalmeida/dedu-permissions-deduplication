@@ -9,6 +9,7 @@ import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +30,13 @@ public class ConsolidateLiteralTopicBindingRule implements BindingTransformation
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsolidateLiteralTopicBindingRule.class);
     private static final String CONFIG_RULE = "rule.consolidate.literal.topic.bindings";
-    private static final String CONFIG_RULE_ENABLED = CONFIG_RULE + ".enabled";
-    private static final String CONFIG_RULE_MIN_PREFIX = CONFIG_RULE + ".prefix.min";
-    private static final String CONFIG_RULE_MIN_REPLACED = CONFIG_RULE + ".replaced.min";
+
+    @VisibleForTesting
+    static final String CONFIG_RULE_ENABLED = CONFIG_RULE + ".enabled";
+    @VisibleForTesting
+    static final String CONFIG_RULE_MIN_PREFIX = CONFIG_RULE + ".prefix.min";
+    @VisibleForTesting
+    static final String CONFIG_RULE_MIN_REPLACED = CONFIG_RULE + ".replaced.min";
 
     private final KafkaAdminClient adminClient;
     private final boolean isRuleActivated;

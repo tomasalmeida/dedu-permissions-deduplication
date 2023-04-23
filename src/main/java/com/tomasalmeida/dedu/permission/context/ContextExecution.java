@@ -33,7 +33,7 @@ public class ContextExecution {
     }
 
     private void populateCandidatesGroup() {
-        for (final PermissionBinding binding : originalPermissions) {
+        for (final PermissionBinding binding : getOriginalPermissions()) {
             final boolean matchFound = candidatesGroups.stream().anyMatch(candidatesGroup -> candidatesGroup.addIfMatches(binding));
             if (!matchFound) {
                 candidatesGroups.add(new CandidatesGroup(binding));
