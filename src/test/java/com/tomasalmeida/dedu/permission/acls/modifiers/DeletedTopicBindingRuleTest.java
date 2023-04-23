@@ -13,6 +13,7 @@ import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -25,7 +26,7 @@ import com.tomasalmeida.dedu.com.tomasalmeida.tests.acls.AclPermissionCreator;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
-import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
+import com.tomasalmeida.dedu.permission.context.ContextExecution;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
@@ -125,13 +126,15 @@ class DeletedTopicBindingRuleTest {
     }
 
     private void whenModifierRuns() {
-        final ContextRule context = new ContextRule() {
+        final ContextExecution context = new ContextExecution() {
             @Override
+            @NotNull
             public List<PermissionBinding> getOriginalPermissions() {
                 return originalPermissions;
             }
 
             @Override
+            @NotNull
             public List<ActionablePermissionBinding> getActionablePermissionBindings() {
                 return actionablePermissions;
             }

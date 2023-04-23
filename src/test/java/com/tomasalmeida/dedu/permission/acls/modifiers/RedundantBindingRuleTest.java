@@ -7,11 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tomasalmeida.dedu.com.tomasalmeida.tests.acls.AclPermissionCreator;
 import com.tomasalmeida.dedu.permission.acls.AclPermissionBinding;
-import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
+import com.tomasalmeida.dedu.permission.context.ContextExecution;
 
+@Execution(ExecutionMode.CONCURRENT)
+@ExtendWith(MockitoExtension.class)
 class RedundantBindingRuleTest {
 
     private static final String TOPIC_NAME1 = "topic-t";
@@ -36,7 +42,7 @@ class RedundantBindingRuleTest {
     void shouldRemoveRedundants() {
         final RedundantBindingRule redundantBindingRule = new RedundantBindingRule();
 
-        final ContextRule context = new ContextRule();
+        final ContextExecution context = new ContextExecution();
         context.getOriginalPermissions().addAll(
                 List.of(bindL1A, bindL2A, bindL3A, bindL4A, bindL1B, bindP1A, bindP2A, bindP1B));
 

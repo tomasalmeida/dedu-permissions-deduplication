@@ -1,4 +1,4 @@
-package com.tomasalmeida.dedu.permission.modifier.context;
+package com.tomasalmeida.dedu.permission.context;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,7 +12,7 @@ import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
 
 import lombok.Getter;
 
-@Getter
+@Getter (onMethod_ = {@NotNull})
 public class CandidatesGroup {
 
     private final PermissionBinding master;

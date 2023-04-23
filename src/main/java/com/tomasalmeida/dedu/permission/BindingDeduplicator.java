@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
+import com.tomasalmeida.dedu.permission.context.ContextExecution;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 import com.tomasalmeida.dedu.permission.modifier.BindingTransformationRule;
 import com.tomasalmeida.dedu.permission.modifier.Rule;
-import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 import com.tomasalmeida.dedu.permission.printers.Printer;
 
 public abstract class BindingDeduplicator {
@@ -50,37 +50,44 @@ public abstract class BindingDeduplicator {
     protected abstract List<PermissionBinding> getPermissionBindingsForUsers() throws ExecutionException, InterruptedException;
 
     public void run() throws ExecutionException, InterruptedException {
-        final ContextRule context = createContext();
+        final ContextExecution context = createContext();
+
+        printCurrentPermissions(context);
 
         cleanObsoletePermissions(context);
         optimizePermissions(context);
 
-        printPermissions(context);
+        printActionablePermissions(context);
     }
 
     @NotNull
-    private ContextRule createContext() throws ExecutionException, InterruptedException {
-        final ContextRule context = new ContextRule();
+    private ContextExecution createContext() throws ExecutionException, InterruptedException {
+        final ContextExecution context = new ContextExecution();
         final List<PermissionBinding> originalPermissions = getPermissionBindingsForUsers();
         context.getOriginalPermissions().addAll(originalPermissions);
         return context;
     }
 
-    private void printPermissions(@NotNull final ContextRule context) {
+    private void printCurrentPermissions(@NotNull final ContextExecution context) {
         for (final Printer printer : printers) {
             printer.printCurrentBindings(context.getOriginalPermissions());
+        }
+    }
+
+    private void printActionablePermissions(@NotNull final ContextExecution context) {
+        for (final Printer printer : printers) {
             printer.printActionableBindings(context.getActionablePermissionBindings());
         }
     }
 
-    private void cleanObsoletePermissions(@NotNull final ContextRule context) {
+    private void cleanObsoletePermissions(@NotNull final ContextExecution context) {
         for (final BindingDeletionRule modifier : deletionModifiers) {
             modifier.run(context);
             context.removeActionableFromOriginals();
         }
     }
 
-    private void optimizePermissions(@NotNull final ContextRule context) {
+    private void optimizePermissions(@NotNull final ContextExecution context) {
         for (final BindingTransformationRule modifier : transformationModifiers) {
             modifier.run(context);
             context.removeActionableFromOriginals();

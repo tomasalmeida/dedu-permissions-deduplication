@@ -12,6 +12,7 @@ import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.BindingDeduplicator;
 import com.tomasalmeida.dedu.permission.BindingProvider;
+import com.tomasalmeida.dedu.permission.acls.modifiers.ConsolidateLiteralTopicBindingRule;
 import com.tomasalmeida.dedu.permission.acls.modifiers.DeletedTopicBindingRule;
 import com.tomasalmeida.dedu.permission.acls.modifiers.RedundantBindingRule;
 import com.tomasalmeida.dedu.permission.acls.printers.CsvAclPrinter;
@@ -30,8 +31,8 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
         super("aclBindingDeduplicator");
         this.adminClient = adminClient;
         this.mainConfiguration = mainConfiguration;
-        addRules(adminClient);
-        addPrinters(mainConfiguration);
+        addRules();
+        addPrinters();
     }
 
     public static AclBindingDeduplicator build(@NotNull final KafkaAdminClient adminClient,
@@ -39,15 +40,16 @@ public class AclBindingDeduplicator extends BindingDeduplicator {
         return new AclBindingDeduplicator(adminClient, mainConfiguration);
     }
 
-    private void addPrinters(@NotNull final MainConfiguration mainConfiguration) {
+    private void addPrinters() {
         this.addPrinter(new DebugLogPrinter(mainConfiguration));
         this.addPrinter(new CsvAclPrinter(mainConfiguration));
     }
 
     @VisibleForTesting
-    void addRules(@NotNull final KafkaAdminClient adminClient) {
+    void addRules() {
         this.addRule(new DeletedTopicBindingRule(adminClient));
         this.addRule(new RedundantBindingRule());
+        this.addRule(new ConsolidateLiteralTopicBindingRule(adminClient, mainConfiguration));
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.tomasalmeida.dedu.permission.acls;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -23,9 +24,9 @@ import com.tomasalmeida.dedu.api.kafka.KafkaAdminClient;
 import com.tomasalmeida.dedu.configuration.MainConfiguration;
 import com.tomasalmeida.dedu.permission.bindings.ActionablePermissionBinding;
 import com.tomasalmeida.dedu.permission.bindings.PermissionBinding;
+import com.tomasalmeida.dedu.permission.context.ContextExecution;
 import com.tomasalmeida.dedu.permission.modifier.BindingDeletionRule;
 import com.tomasalmeida.dedu.permission.modifier.BindingTransformationRule;
-import com.tomasalmeida.dedu.permission.modifier.context.ContextRule;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
@@ -63,6 +64,10 @@ class AclBindingDeduplicatorTest {
     @Test
     void shouldGetPermissions() throws Exception {
         when(mainConfiguration.getPrincipal()).thenReturn(PRINCIPAL);
+        doAnswer(invocation -> invocation.getArgument(1))
+                .when(mainConfiguration)
+                .getDeduPropertyOrDefault(anyString(), anyString());
+
         try (final MockedConstruction<AclBindingProvider> mockConstruction = mockConstruction(AclBindingProvider.class)) {
             aclBindingDeduplicator = AclBindingDeduplicator.build(adminClient, mainConfiguration);
 
@@ -76,27 +81,27 @@ class AclBindingDeduplicatorTest {
 
     private void givenDeletionRuleChangeOneElement() {
         Mockito.doAnswer(invocation -> {
-            final ContextRule context = invocation.getArgument(0);
+            final ContextExecution context = invocation.getArgument(0);
             context.getActionablePermissionBindings().add(actionableDeletedPermission1);
             return null;
-        }).when(deletionRule).run(any(ContextRule.class));
+        }).when(deletionRule).run(any(ContextExecution.class));
     }
 
     private void givenTransformationRuleChangeOneElement() {
         Mockito.doAnswer(invocation -> {
-            final ContextRule context = invocation.getArgument(0);
+            final ContextExecution context = invocation.getArgument(0);
             final List<ActionablePermissionBinding> actionableAddedPermissions = context.getActionablePermissionBindings();
             actionableAddedPermissions.add(actionableDeletedPermission2);
             actionableAddedPermissions.add(actionableTransfPermission);
             return null;
-        }).when(transformationRule).run(any(ContextRule.class));
+        }).when(transformationRule).run(any(ContextExecution.class));
     }
 
     private void givenAclBindingDeduplicatorIsCreated() {
         aclBindingDeduplicator = new AclBindingDeduplicator(adminClient, mainConfiguration) {
 
             @Override
-            void addRules(final @NotNull KafkaAdminClient adminClient) {
+            void addRules() {
                 this.addRule(deletionRule);
                 this.addRule(transformationRule);
             }
@@ -113,7 +118,7 @@ class AclBindingDeduplicatorTest {
     }
 
     private void thenRulesAreLaunched() {
-        verify(deletionRule).run(any(ContextRule.class));
-        verify(transformationRule).run(any(ContextRule.class));
+        verify(deletionRule).run(any(ContextExecution.class));
+        verify(transformationRule).run(any(ContextExecution.class));
     }
 }

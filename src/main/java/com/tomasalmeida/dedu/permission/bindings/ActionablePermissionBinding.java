@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class ActionablePermissionBinding extends PermissionBinding {
 
-    public enum Action {DELETE, NONE}
+    public enum Action {DELETE, ADD, NONE}
 
     private final Action action;
     private final String note;
