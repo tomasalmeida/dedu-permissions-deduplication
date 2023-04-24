@@ -25,13 +25,13 @@ public class CommandLineInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineInterface.class);
 
     public static final String OPTION_CONFIG_FILE = "kafka-config-file";
-    private static final String OPTION_CONFIG_FILE_DESC = "Kafka Config file path";
+    private static final String OPTION_CONFIG_FILE_DESC = "[required] Kafka Config file path (with Kafka configuration properties)";
     public static final String OPTION_DEDU_CONFIG_FILE = "dedu-config-file";
-    private static final String OPTION_DEDU_CONFIG_FILE_DESC = "Dedu Config file path";
+    private static final String OPTION_DEDU_CONFIG_FILE_DESC = "[required] Dedu Config file path (with Dedu configuration properties)";
     public static final String OPTION_HELP = "help";
-    private static final String OPTION_HELP_DESC = "Show usage options";
+    private static final String OPTION_HELP_DESC = "[optional] Show all parameters";
     public static final String OPTION_PRINCIPAL = "principal";
-    private static final String OPTION_PRINCIPAL_DESC = "Optimize permissions for a given principal";
+    private static final String OPTION_PRINCIPAL_DESC = "[optional] Optimize permissions for this given principal";
 
     private final Options optionsList;
     private final DefaultParser optionsParser;
