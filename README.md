@@ -31,94 +31,37 @@ java -jar dedu-x.y.z.jar <parameters>
 
 ### Dedu config file properties
 
-| Property        | log.level                       |
-|-----------------|---------------------------------|
-| Required        | NO                              |
-| Accepted values | TRACE, DEBUG, INFO, WARN, ERROR |
-| Default Value   | INFO                            |
-| Description     | Log output level                |
+| Property                                               | Required | Accepted values                 | Default Value    | Description                                                                              |
+|--------------------------------------------------------|----------|---------------------------------|------------------|------------------------------------------------------------------------------------------|
+| log.level                                              | NO       | TRACE, DEBUG, INFO, WARN, ERROR | INFO             | Log output level                                                                         |
+| acl.current.output.log.enable                          | NO       | true / false                    | false            | Output the current bindings to the output log                                            |
+| acl.current.output.csv.enable                          | NO       | true / false                    | false            | Output the current bindings to a CSV file                                                |
+| acl.current.output.csv.path                            | NO       | any path                        | ./current.csv    | Path to save the CSV current bindings                                                    |
+| acl.actionable.output.log.enable                       | NO       | true / false                    | false            | Output the actionable bindings to the output log                                         |
+| acl.actionable.output.csv.enable                       | NO       | true / false                    | false            | Output the actionable bindings a CSV file                                                |
+| acl.actionable.output.csv.path                         | NO       | any path                        | ./actionable.csv | Path to save the CSV actionable bindings                                                 |
+| rule.consolidate.literal.topic.bindings.enabled        | NO       | true / false                    | false            | Enable experimental rule to consolidate several literal bindings into one prefix binding |
+| rule.consolidate.literal.topic.bindings.prefix.min     | NO       | number bigger than 3            | 3                | Minimum size of the prefix                                                               |
+| rule.consolidate.literal.topic.bindings.replaced.min   | NO       | number bigger than 2            | 2                | Minimum number of replaced bindings to allow consolidation                               |
 
-| Property        | acl.current.output.log.enable                 |
-|-----------------|-----------------------------------------------|
-| Required        | NO                                            |
-| Accepted values | true / false                                  |
-| Default Value   | false                                         |
-| Description     | Output the current bindings to the output log |
+## Example
 
+### For all principals
+```shell
+  mvn clean package
+  cd examples/sasl-plain-cluster
+  ./startCluster.sh
+  cd ../..
+  java -jar target/dedu-x.y.z.jar --kafka-config-file examples/sasl-plain-cluster/clients/kafka-user.properties --dedu-config-file examples/dedu.properties
+```
 
-| Property        | acl.current.output.csv.enable             |
-|-----------------|-------------------------------------------|
-| Required        | NO                                        |
-| Accepted values | true / false                              |
-| Default Value   | false                                     |
-| Description     | Output the current bindings to a CSV file |
-
-| Property        | acl.current.output.csv.path           |
-|-----------------|---------------------------------------|
-| Required        | NO                                    |
-| Accepted values | any path                              |
-| Default Value   | ./current.csv                         |
-| Description     | Path to save the CSV current bindings |
-
-| Property        | acl.actionable.output.log.enable                 |
-|-----------------|--------------------------------------------------|
-| Required        | NO                                               |
-| Accepted values | true / false                                     |
-| Default Value   | false                                            |
-| Description     | Output the actionable bindings to the output log |
-
-| Property        | xxx |
-|-----------------|-----|
-| Required        | xxx |
-| Accepted values | xxx |
-| Default Value   | xxx |
-| Description     | xxx |
+### For one specific user
+```shell
+  mvn clean package
+  cd examples/sasl-plain-cluster
+  ./startCluster.sh
+  cd ../..
+  java -jar target/dedu-x.y.z.jar --kafka-config-file examples/sasl-plain-cluster/clients/kafka-user.properties --dedu-config-file examples/dedu.properties --principal User:alice
+```
 
 
-acl.actionable.output.csv.enable=true
-
-
-| Property        | xxx |
-|-----------------|-----|
-| Required        | xxx |
-| Accepted values | xxx |
-| Default Value   | xxx |
-| Description     | xxx |
-
-acl.actionable.output.csv.path=target/actionable.csv
-
-
-| Property        | xxx |
-|-----------------|-----|
-| Required        | xxx |
-| Accepted values | xxx |
-| Default Value   | xxx |
-| Description     | xxx |
-
-rule.consolidate.literal.topic.bindings.enabled=true
-
-
-| Property        | xxx |
-|-----------------|-----|
-| Required        | xxx |
-| Accepted values | xxx |
-| Default Value   | xxx |
-| Description     | xxx |
-
-rule.consolidate.literal.topic.bindings.prefix.min=4
-
-
-| Property        | xxx |
-|-----------------|-----|
-| Required        | xxx |
-| Accepted values | xxx |
-| Default Value   | xxx |
-| Description     | xxx |
-
-rule.consolidate.literal.topic.bindings.replaced.min=3
-
-## Example 
-
---kafka-config-file examples/sasl-plain-cluster/clients/kafka-user.properties --dedu-config-file examples/dedu.properties
-
---kafka-config-file examples/sasl-plain-cluster/clients/kafka-user.properties --principal User:alice --dedu-config-file examples/dedu.properties
