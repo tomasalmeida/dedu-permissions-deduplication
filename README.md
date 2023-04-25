@@ -31,18 +31,20 @@ java -jar dedu-x.y.z.jar <parameters>
 
 ### Dedu config file properties
 
-| Property                                               | Required | Accepted values                 | Default Value    | Description                                                                              |
-|--------------------------------------------------------|----------|---------------------------------|------------------|------------------------------------------------------------------------------------------|
-| log.level                                              | NO       | TRACE, DEBUG, INFO, WARN, ERROR | INFO             | Log output level                                                                         |
-| acl.current.output.log.enable                          | NO       | true / false                    | false            | Output the current bindings to the output log                                            |
-| acl.current.output.csv.enable                          | NO       | true / false                    | false            | Output the current bindings to a CSV file                                                |
-| acl.current.output.csv.path                            | NO       | any path                        | ./current.csv    | Path to save the CSV current bindings                                                    |
-| acl.actionable.output.log.enable                       | NO       | true / false                    | false            | Output the actionable bindings to the output log                                         |
-| acl.actionable.output.csv.enable                       | NO       | true / false                    | false            | Output the actionable bindings a CSV file                                                |
-| acl.actionable.output.csv.path                         | NO       | any path                        | ./actionable.csv | Path to save the CSV actionable bindings                                                 |
-| rule.consolidate.literal.topic.bindings.enabled        | NO       | true / false                    | false            | Enable experimental rule to consolidate several literal bindings into one prefix binding |
-| rule.consolidate.literal.topic.bindings.prefix.min     | NO       | number bigger than 3            | 3                | Minimum size of the prefix                                                               |
-| rule.consolidate.literal.topic.bindings.replaced.min   | NO       | number bigger than 2            | 2                | Minimum number of replaced bindings to allow consolidation                               |
+None of the properties are required and the default value is used in case the property is not provided.
+
+| Property                                               | Accepted values                 | Default Value    | Description                                                                              |
+|--------------------------------------------------------|---------------------------------|------------------|------------------------------------------------------------------------------------------|
+| log.level                                              | TRACE, DEBUG, INFO, WARN, ERROR | INFO             | Log output level                                                                         |
+| acl.current.output.log.enable                          | true / false                    | false            | Output the current bindings to the output log                                            |
+| acl.current.output.csv.enable                          | true / false                    | false            | Output the current bindings to a CSV file                                                |
+| acl.current.output.csv.path                            | any path                        | ./current.csv    | Path to save the CSV current bindings                                                    |
+| acl.actionable.output.log.enable                       | true / false                    | false            | Output the actionable bindings to the output log                                         |
+| acl.actionable.output.csv.enable                       | true / false                    | false            | Output the actionable bindings a CSV file                                                |
+| acl.actionable.output.csv.path                         | any path                        | ./actionable.csv | Path to save the CSV actionable bindings                                                 |
+| rule.consolidate.literal.topic.bindings.enabled        | true / false                    | false            | Enable experimental rule to consolidate several literal bindings into one prefix binding |
+| rule.consolidate.literal.topic.bindings.prefix.min     | number bigger than 3            | 3                | Minimum size of the prefix                                                               |
+| rule.consolidate.literal.topic.bindings.replaced.min   | number bigger than 2            | 2                | Minimum number of replaced bindings to allow consolidation                               |
 
 ## Example
 
