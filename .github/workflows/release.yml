@@ -12,7 +12,7 @@ jobs:
     permissions:
       actions: read
       checks: write
-      contents: read
+      contents: write
       deployments: read
       issues: read
       discussions: read
