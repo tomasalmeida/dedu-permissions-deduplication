@@ -36,10 +36,10 @@ None of the properties are required and the default value is used in case the pr
 | Property                                               | Accepted values                 | Default Value    | Description                                                                              |
 |--------------------------------------------------------|---------------------------------|------------------|------------------------------------------------------------------------------------------|
 | log.level                                              | TRACE, DEBUG, INFO, WARN, ERROR | INFO             | Log output level                                                                         |
-| acl.current.output.log.enable                          | true / false                    | false            | Output the current bindings to the output log                                            |
+| acl.current.output.log.enable                          | true / false                    | false            | Output the current bindings to the output log (debug mode only)                          |
 | acl.current.output.csv.enable                          | true / false                    | false            | Output the current bindings to a CSV file                                                |
 | acl.current.output.csv.path                            | any path                        | ./current.csv    | Path to save the CSV current bindings                                                    |
-| acl.actionable.output.log.enable                       | true / false                    | false            | Output the actionable bindings to the output log                                         |
+| acl.actionable.output.log.enable                       | true / false                    | false            | Output the actionable bindings to the output log (debug mode only)                       |
 | acl.actionable.output.csv.enable                       | true / false                    | false            | Output the actionable bindings a CSV file                                                |
 | acl.actionable.output.csv.path                         | any path                        | ./actionable.csv | Path to save the CSV actionable bindings                                                 |
 | rule.consolidate.literal.topic.bindings.enabled        | true / false                    | false            | Enable experimental rule to consolidate several literal bindings into one prefix binding |
@@ -66,4 +66,18 @@ None of the properties are required and the default value is used in case the pr
   java -jar target/dedu-x.y.z.jar --kafka-config-file examples/sasl-plain-cluster/clients/kafka-user.properties --dedu-config-file examples/dedu.properties --principal User:alice
 ```
 
+## DISCLAIMER
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Copyright 2024 - Tomás Dias Almeida
